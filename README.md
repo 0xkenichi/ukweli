@@ -1,0 +1,113 @@
+# Ukweli: two agents, one truth
+
+*Ukweli* means "truth" in Swahili.
+
+Small shops in Kenya keep two records of the same money: a sales book written by hand, and the M-Pesa statement from Safaricom. When the two disagree (a reversed payment, a typo, an entry written twice, a payment nobody wrote down), sorting it out by hand takes hours and can end in arguments with customers.
+
+Ukweli gives each record its own agent. When they disagree, the two agents debate using MeTTa rules. They bring evidence, rebut each other and concede when they're beaten, until they agree on one answer. If they can't agree, they ask the owner the one question that would settle it. Every step goes into an audit trail that the owner can read and overrule.
+
+**Hackathon:** State of the Art Hackathon 2026 (BASIX.MARKET × SingularityNET × Omega)
+**Track:** Track 02 Builders: Omega AI Agents
+**Challenge:** 4. Two Agents, One Truth
+
+## What it does
+
+```text
+Case 1: How much did John Kamau really pay on 2026-10-14 (book entry L-104)?
+  Ledger says KES 500, M-Pesa says KES 0
+   1. Ledger agent believes KES 500: "My book entry L-104 says John Kamau paid KES 500 by M-Pesa ..."
+   2. M-Pesa agent believes KES 0: "My statement shows QJK4T7XA2P brought in KES 500 at 10:14, but QJR9W2LB6E reversed it at 16:42."
+   2. M-Pesa agent rebuts: Safaricom reversed this payment after it was sent, so the money never stayed in the till.
+   3. Ledger agent brings new evidence: "And the customer showed me the confirmation SMS for QJK4T7XA2P."
+   4. M-Pesa agent rebuts: The SMS was real, but it was sent before the reversal.
+   5. Ledger agent concedes and now believes KES 0.
+  Agreed: KES 0  (confidence 95%)
+  Owner action: Mark L-104 as UNPAID. Ask John Kamau to pay KES 500 again: the payment was reversed.
+```
+
+With the sample data, the agents find 6 disagreements, settle 5 of them, and pass 1 to the owner:
+
+| Situation | Who concedes | Result |
+|---|---|---|
+| Payment reversed after the customer showed the SMS | Ledger | Mark unpaid, ask the customer again |
+| 1,500 written, 1,050 received | Ledger | Correct the book. The gap divides by 9, so the digits were probably swapped |
+| Same M-Pesa code written twice | Ledger | Delete the duplicate |
+| Owner's own top-up counted as money in | M-Pesa | Not a sale, record it as a float top-up |
+| Payment missing from the book | Ledger | Add it and close the customer's open debt |
+| Book says paid, no code, unknown number paid the same amount | Nobody | Ask the owner to check with the customer |
+
+The full trail is written to [`audit/AUDIT.md`](audit/AUDIT.md) and `audit/audit.json`.
+
+## How it works
+
+```text
+data/*.csv ──► MeTTa spaces ──► (detect) finds disagreements
+                &ledger           │
+                &mpesa            ▼
+                         debate loop (Python keeps turns)
+                         ├─ (claim agent case)     what each agent believes
+                         ├─ (args agent case)      evidence each can bring
+                         ├─ (defeats a b why)      which evidence beats which
+                         ├─ (revise ...)           loser rewrites its belief in &beliefs
+                         └─ (settle case) / (escalate case)
+                                  │
+                                  ▼
+                       terminal debate + audit/AUDIT.md
+```
+
+- **Two agents with separate knowledge.** The Ledger agent only sees `&ledger` (sales book, credit book, contacts). The M-Pesa agent only sees `&mpesa` (the statement).
+- **All reasoning is in MeTTa.** The rules in [`metta/ukweli.metta`](metta/ukweli.metta) decide what counts as a disagreement, what each agent claims, what evidence it has, which evidence beats which and why, and what the owner should do. Python ([`ukweli/debate.py`](ukweli/debate.py)) only takes turns and keeps score.
+- **The debate protocol.** On each turn an agent rebuts if it can. If none of its evidence is still standing, it brings new evidence. If it has nothing left, it concedes. If both agents pass, the case goes to the owner. Evidence that was beaten comes back into play if whatever beat it gets beaten in turn.
+- **Visible belief change.** When an agent concedes, it rewrites its belief in the `&beliefs` space and keeps a `(revision agent case old new why)` atom, so every change of mind can be traced.
+
+## Setup
+
+Needs Python 3.10 or newer (tested with 3.11).
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+## Run
+
+```bash
+python run.py
+```
+
+Options: `--data <folder>` to use other CSV files, `--out <folder>` for the audit trail, `--no-color`.
+
+## Test
+
+```bash
+python -m unittest discover -s tests -t .
+```
+
+## Data
+
+All data in `data/` is made up. See [`data/README.md`](data/README.md).
+
+## What's next
+
+- [ ] Web page that shows the debate live, for the demo video
+- [ ] Explanations in Swahili for the owner
+- [ ] Learning from the owner: when the owner answers an escalated question (e.g. "yes, 0711***902 is Mama Faith's daughter"), save it as a new fact so the agents settle that case on their own next time
+- [ ] Run the agents on Omega's agent infrastructure (waiting on the Omega resources on BASIX.MARKET)
+- [ ] Import real M-Pesa statement exports (PDF/CSV)
+
+## Team
+
+| Name | Role |
+|---|---|
+| kenichi | Team lead |
+| _to add_ | |
+| _to add_ | |
+
+## AI disclosure
+
+See [`AI_DISCLOSURE.md`](AI_DISCLOSURE.md).
+
+## Hackathon files
+
+`BRIEF.md`, `SUBMISSION.md`, `AGENTS.md`, `CLAUDE.md` and `tracks/` come from the [BASIX hackathon starter](https://github.com/BASIXmarket-io/hackathon-starter).

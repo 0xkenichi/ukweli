@@ -1,0 +1,10 @@
+id,date,customer,amount,method,mpesa_code,proof
+101,2026-10-13,mary,450,mpesa,QJA1M4R7ZP,
+102,2026-10-13,kevin,220,cash,,
+104,2026-10-14,john,500,mpesa,QJK4T7XA2P,sms-shown
+105,2026-10-14,mary,1200,mpesa,QJM2B8KQ1D,
+107,2026-10-15,akinyi,1500,mpesa,QK2H6VN3LC,
+110,2026-10-15,peter,300,mpesa,QK7D3FT9WS,
+111,2026-10-15,peter,300,mpesa,QK7D3FT9WS,
+113,2026-10-16,kevin,650,mpesa,QL1P8XC2MA,
+115,2026-10-16,faith,800,mpesa,,

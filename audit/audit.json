@@ -1,0 +1,570 @@
+[
+  {
+    "case": "(Case reversed 104)",
+    "kind": "reversed",
+    "question": "How much did John Kamau really pay on 2026-10-14 (book entry L-104)?",
+    "claims": {
+      "ledger": 500,
+      "mpesa": 0
+    },
+    "evidence": {
+      "ledger": [
+        {
+          "agent": "ledger",
+          "kind": "book-entry",
+          "says": "My book entry L-104 says John Kamau paid KES 500 by M-Pesa on 2026-10-14, code QJK4T7XA2P.",
+          "order": 1,
+          "played": true,
+          "beaten_by": {
+            "agent": "mpesa",
+            "kind": "statement-reversal",
+            "says": "My statement shows QJK4T7XA2P brought in KES 500 at 10:14, but QJR9W2LB6E reversed it at 16:42. Net: KES 0.",
+            "order": 1,
+            "played": true,
+            "beaten_by": null,
+            "why_beaten": ""
+          },
+          "why_beaten": "Safaricom reversed this payment after it was sent, so the money never stayed in the till."
+        },
+        {
+          "agent": "ledger",
+          "kind": "customer-sms",
+          "says": "And the customer showed me the confirmation SMS for QJK4T7XA2P. I saw it myself.",
+          "order": 2,
+          "played": true,
+          "beaten_by": {
+            "agent": "mpesa",
+            "kind": "statement-reversal",
+            "says": "My statement shows QJK4T7XA2P brought in KES 500 at 10:14, but QJR9W2LB6E reversed it at 16:42. Net: KES 0.",
+            "order": 1,
+            "played": true,
+            "beaten_by": null,
+            "why_beaten": ""
+          },
+          "why_beaten": "The SMS was real, but it was sent before the reversal. An SMS can't show a reversal that happened later."
+        }
+      ],
+      "mpesa": [
+        {
+          "agent": "mpesa",
+          "kind": "statement-reversal",
+          "says": "My statement shows QJK4T7XA2P brought in KES 500 at 10:14, but QJR9W2LB6E reversed it at 16:42. Net: KES 0.",
+          "order": 1,
+          "played": true,
+          "beaten_by": null,
+          "why_beaten": ""
+        }
+      ]
+    },
+    "moves": [
+      {
+        "turn": 1,
+        "agent": "ledger",
+        "act": "open",
+        "kind": "book-entry",
+        "says": "My book entry L-104 says John Kamau paid KES 500 by M-Pesa on 2026-10-14, code QJK4T7XA2P.",
+        "claim": 500
+      },
+      {
+        "turn": 2,
+        "agent": "mpesa",
+        "act": "rebut",
+        "kind": "statement-reversal",
+        "says": "My statement shows QJK4T7XA2P brought in KES 500 at 10:14, but QJR9W2LB6E reversed it at 16:42. Net: KES 0.",
+        "claim": 0,
+        "target": "book-entry",
+        "why": "Safaricom reversed this payment after it was sent, so the money never stayed in the till."
+      },
+      {
+        "turn": 3,
+        "agent": "ledger",
+        "act": "present",
+        "kind": "customer-sms",
+        "says": "And the customer showed me the confirmation SMS for QJK4T7XA2P. I saw it myself.",
+        "claim": null
+      },
+      {
+        "turn": 4,
+        "agent": "mpesa",
+        "act": "rebut",
+        "kind": "statement-reversal",
+        "says": "",
+        "claim": null,
+        "target": "customer-sms",
+        "why": "The SMS was real, but it was sent before the reversal. An SMS can't show a reversal that happened later."
+      },
+      {
+        "turn": 5,
+        "agent": "ledger",
+        "act": "concede",
+        "claim": 0
+      }
+    ],
+    "outcome": "settled",
+    "agreed": 0,
+    "conceded_by": "ledger",
+    "confidence": 0.95,
+    "action": "Mark L-104 as UNPAID. Ask John Kamau to pay KES 500 again: the payment was reversed.",
+    "owner_question": "",
+    "belief_change": {
+      "agent": "ledger",
+      "old": 500,
+      "new": 0,
+      "why": "The SMS was real, but it was sent before the reversal. An SMS can't show a reversal that happened later."
+    }
+  },
+  {
+    "case": "(Case amount-mismatch 107)",
+    "kind": "amount-mismatch",
+    "question": "How much did Akinyi Odhiambo really pay on 2026-10-15 (book entry L-107)?",
+    "claims": {
+      "ledger": 1500,
+      "mpesa": 1050
+    },
+    "evidence": {
+      "ledger": [
+        {
+          "agent": "ledger",
+          "kind": "book-entry",
+          "says": "My book entry L-107 says Akinyi Odhiambo paid KES 1500, code QK2H6VN3LC.",
+          "order": 1,
+          "played": true,
+          "beaten_by": {
+            "agent": "mpesa",
+            "kind": "statement-amount",
+            "says": "My statement shows QK2H6VN3LC was exactly KES 1050 from AKINYI ODHIAMBO at 12:03.",
+            "order": 1,
+            "played": true,
+            "beaten_by": null,
+            "why_beaten": ""
+          },
+          "why_beaten": "Safaricom records the amount automatically. The book is written by hand."
+        }
+      ],
+      "mpesa": [
+        {
+          "agent": "mpesa",
+          "kind": "statement-amount",
+          "says": "My statement shows QK2H6VN3LC was exactly KES 1050 from AKINYI ODHIAMBO at 12:03.",
+          "order": 1,
+          "played": true,
+          "beaten_by": null,
+          "why_beaten": ""
+        }
+      ]
+    },
+    "moves": [
+      {
+        "turn": 1,
+        "agent": "ledger",
+        "act": "open",
+        "kind": "book-entry",
+        "says": "My book entry L-107 says Akinyi Odhiambo paid KES 1500, code QK2H6VN3LC.",
+        "claim": 1500
+      },
+      {
+        "turn": 2,
+        "agent": "mpesa",
+        "act": "rebut",
+        "kind": "statement-amount",
+        "says": "My statement shows QK2H6VN3LC was exactly KES 1050 from AKINYI ODHIAMBO at 12:03.",
+        "claim": 1050,
+        "target": "book-entry",
+        "why": "Safaricom records the amount automatically. The book is written by hand."
+      },
+      {
+        "turn": 3,
+        "agent": "ledger",
+        "act": "concede",
+        "claim": 1050
+      }
+    ],
+    "outcome": "settled",
+    "agreed": 1050,
+    "conceded_by": "ledger",
+    "confidence": 0.85,
+    "action": "Correct L-107 to KES 1050. The KES 450 gap divides by 9, the classic sign of swapped digits. Check with Akinyi Odhiambo whether KES 1500 was owed; if so, KES 450 is still due.",
+    "owner_question": "",
+    "belief_change": {
+      "agent": "ledger",
+      "old": 1500,
+      "new": 1050,
+      "why": "Safaricom records the amount automatically. The book is written by hand."
+    }
+  },
+  {
+    "case": "(Case duplicate 111)",
+    "kind": "duplicate",
+    "question": "How much did Peter Otieno pay with M-Pesa code QK7D3FT9WS?",
+    "claims": {
+      "ledger": 600,
+      "mpesa": 300
+    },
+    "evidence": {
+      "ledger": [
+        {
+          "agent": "ledger",
+          "kind": "book-entries-sum",
+          "says": "My book entries L-110 and L-111 each record KES 300 from Peter Otieno. That's KES 600 in total.",
+          "order": 1,
+          "played": true,
+          "beaten_by": {
+            "agent": "mpesa",
+            "kind": "single-code",
+            "says": "Code QK7D3FT9WS appears once in my statement: one payment of KES 300 from PETER OTIENO at 15:47.",
+            "order": 1,
+            "played": true,
+            "beaten_by": null,
+            "why_beaten": ""
+          },
+          "why_beaten": "Every M-Pesa code is unique. The same code written twice is one payment recorded twice."
+        }
+      ],
+      "mpesa": [
+        {
+          "agent": "mpesa",
+          "kind": "single-code",
+          "says": "Code QK7D3FT9WS appears once in my statement: one payment of KES 300 from PETER OTIENO at 15:47.",
+          "order": 1,
+          "played": true,
+          "beaten_by": null,
+          "why_beaten": ""
+        }
+      ]
+    },
+    "moves": [
+      {
+        "turn": 1,
+        "agent": "ledger",
+        "act": "open",
+        "kind": "book-entries-sum",
+        "says": "My book entries L-110 and L-111 each record KES 300 from Peter Otieno. That's KES 600 in total.",
+        "claim": 600
+      },
+      {
+        "turn": 2,
+        "agent": "mpesa",
+        "act": "rebut",
+        "kind": "single-code",
+        "says": "Code QK7D3FT9WS appears once in my statement: one payment of KES 300 from PETER OTIENO at 15:47.",
+        "claim": 300,
+        "target": "book-entries-sum",
+        "why": "Every M-Pesa code is unique. The same code written twice is one payment recorded twice."
+      },
+      {
+        "turn": 3,
+        "agent": "ledger",
+        "act": "concede",
+        "claim": 300
+      }
+    ],
+    "outcome": "settled",
+    "agreed": 300,
+    "conceded_by": "ledger",
+    "confidence": 0.97,
+    "action": "Delete L-111. It repeats code QK7D3FT9WS, which was already recorded.",
+    "owner_question": "",
+    "belief_change": {
+      "agent": "ledger",
+      "old": 600,
+      "new": 300,
+      "why": "Every M-Pesa code is unique. The same code written twice is one payment recorded twice."
+    }
+  },
+  {
+    "case": "(Case owner-topup QL6S3DR1XW)",
+    "kind": "owner-topup",
+    "question": "Is the KES 2000 from WANJIKU K on 2026-10-16 (QL6S3DR1XW) a sale?",
+    "claims": {
+      "ledger": 0,
+      "mpesa": 2000
+    },
+    "evidence": {
+      "ledger": [
+        {
+          "agent": "ledger",
+          "kind": "own-number",
+          "says": "0700***111 is the owner's own number in my contact list. Money from it is a float top-up, not a sale.",
+          "order": 1,
+          "played": true,
+          "beaten_by": null,
+          "why_beaten": ""
+        }
+      ],
+      "mpesa": [
+        {
+          "agent": "mpesa",
+          "kind": "statement-received",
+          "says": "My statement shows QL6S3DR1XW brought in KES 2000 from WANJIKU K at 20:02 on 2026-10-16.",
+          "order": 1,
+          "played": true,
+          "beaten_by": {
+            "agent": "ledger",
+            "kind": "own-number",
+            "says": "0700***111 is the owner's own number in my contact list. Money from it is a float top-up, not a sale.",
+            "order": 1,
+            "played": true,
+            "beaten_by": null,
+            "why_beaten": ""
+          },
+          "why_beaten": "Money from the owner's own phone is the owner's money, not a customer's payment."
+        }
+      ]
+    },
+    "moves": [
+      {
+        "turn": 1,
+        "agent": "ledger",
+        "act": "open",
+        "kind": "own-number",
+        "says": "0700***111 is the owner's own number in my contact list. Money from it is a float top-up, not a sale.",
+        "claim": 0
+      },
+      {
+        "turn": 2,
+        "agent": "mpesa",
+        "act": "open",
+        "kind": "statement-received",
+        "says": "My statement shows QL6S3DR1XW brought in KES 2000 from WANJIKU K at 20:02 on 2026-10-16.",
+        "claim": 2000
+      },
+      {
+        "turn": 3,
+        "agent": "ledger",
+        "act": "rebut",
+        "kind": "own-number",
+        "says": "",
+        "claim": null,
+        "target": "statement-received",
+        "why": "Money from the owner's own phone is the owner's money, not a customer's payment."
+      },
+      {
+        "turn": 4,
+        "agent": "mpesa",
+        "act": "concede",
+        "claim": 0
+      }
+    ],
+    "outcome": "settled",
+    "agreed": 0,
+    "conceded_by": "mpesa",
+    "confidence": 0.95,
+    "action": "Don't count QL6S3DR1XW as sales. Record the KES 2000 as the owner's float top-up.",
+    "owner_question": "",
+    "belief_change": {
+      "agent": "mpesa",
+      "old": 2000,
+      "new": 0,
+      "why": "Money from the owner's own phone is the owner's money, not a customer's payment."
+    }
+  },
+  {
+    "case": "(Case unrecorded QKA5Y7GJ4T)",
+    "kind": "unrecorded",
+    "question": "Is the KES 1200 from BRIAN MWANGI on 2026-10-15 (QKA5Y7GJ4T) shop income?",
+    "claims": {
+      "ledger": 0,
+      "mpesa": 1200
+    },
+    "evidence": {
+      "ledger": [
+        {
+          "agent": "ledger",
+          "kind": "no-book-entry",
+          "says": "No entry in my book has code QKA5Y7GJ4T, so I don't count it as income.",
+          "order": 1,
+          "played": true,
+          "beaten_by": {
+            "agent": "mpesa",
+            "kind": "statement-received",
+            "says": "My statement shows QKA5Y7GJ4T brought in KES 1200 from BRIAN MWANGI (0722***415) at 18:05 on 2026-10-15. Completed, not reversed.",
+            "order": 1,
+            "played": true,
+            "beaten_by": null,
+            "why_beaten": ""
+          },
+          "why_beaten": "A missing book entry doesn't mean missing money. The statement shows it arrived."
+        }
+      ],
+      "mpesa": [
+        {
+          "agent": "mpesa",
+          "kind": "statement-received",
+          "says": "My statement shows QKA5Y7GJ4T brought in KES 1200 from BRIAN MWANGI (0722***415) at 18:05 on 2026-10-15. Completed, not reversed.",
+          "order": 1,
+          "played": true,
+          "beaten_by": null,
+          "why_beaten": ""
+        }
+      ]
+    },
+    "moves": [
+      {
+        "turn": 1,
+        "agent": "ledger",
+        "act": "open",
+        "kind": "no-book-entry",
+        "says": "No entry in my book has code QKA5Y7GJ4T, so I don't count it as income.",
+        "claim": 0
+      },
+      {
+        "turn": 2,
+        "agent": "mpesa",
+        "act": "rebut",
+        "kind": "statement-received",
+        "says": "My statement shows QKA5Y7GJ4T brought in KES 1200 from BRIAN MWANGI (0722***415) at 18:05 on 2026-10-15. Completed, not reversed.",
+        "claim": 1200,
+        "target": "no-book-entry",
+        "why": "A missing book entry doesn't mean missing money. The statement shows it arrived."
+      },
+      {
+        "turn": 3,
+        "agent": "ledger",
+        "act": "concede",
+        "claim": 1200
+      }
+    ],
+    "outcome": "settled",
+    "agreed": 1200,
+    "conceded_by": "ledger",
+    "confidence": 0.9,
+    "action": "Add a book entry for QKA5Y7GJ4T, and close Brian Mwangi's debt D-03 (KES 1200, from 2026-10-03).",
+    "owner_question": "",
+    "belief_change": {
+      "agent": "ledger",
+      "old": 0,
+      "new": 1200,
+      "why": "A missing book entry doesn't mean missing money. The statement shows it arrived."
+    }
+  },
+  {
+    "case": "(Case possible-match 115)",
+    "kind": "possible-match",
+    "question": "Did Mama Faith's KES 800 on 2026-10-16 (book entry L-115) arrive?",
+    "claims": {
+      "ledger": 800,
+      "mpesa": 0
+    },
+    "evidence": {
+      "ledger": [
+        {
+          "agent": "ledger",
+          "kind": "book-entry",
+          "says": "My book entry L-115 says Mama Faith paid KES 800 by M-Pesa on 2026-10-16. No code was written down.",
+          "order": 1,
+          "played": true,
+          "beaten_by": {
+            "agent": "mpesa",
+            "kind": "no-payment-from-number",
+            "says": "No payment came from Mama Faith's number (0733***208) on 2026-10-16.",
+            "order": 1,
+            "played": true,
+            "beaten_by": {
+              "agent": "ledger",
+              "kind": "same-day-payment",
+              "says": "But your statement has KES 800 that day that nobody in my book claims: QL4V2NB8HK from GRACE MUTHONI (0711***902) at 18:20. Customers often pay from a relative's phone.",
+              "order": 2,
+              "played": true,
+              "beaten_by": null,
+              "why_beaten": ""
+            },
+            "why_beaten": "A payment of exactly this amount arrived the same day and no one else claims it."
+          },
+          "why_beaten": "There's no code in the book to check, and the customer's own number didn't pay that day."
+        },
+        {
+          "agent": "ledger",
+          "kind": "same-day-payment",
+          "says": "But your statement has KES 800 that day that nobody in my book claims: QL4V2NB8HK from GRACE MUTHONI (0711***902) at 18:20. Customers often pay from a relative's phone.",
+          "order": 2,
+          "played": true,
+          "beaten_by": null,
+          "why_beaten": ""
+        }
+      ],
+      "mpesa": [
+        {
+          "agent": "mpesa",
+          "kind": "no-payment-from-number",
+          "says": "No payment came from Mama Faith's number (0733***208) on 2026-10-16.",
+          "order": 1,
+          "played": true,
+          "beaten_by": {
+            "agent": "ledger",
+            "kind": "same-day-payment",
+            "says": "But your statement has KES 800 that day that nobody in my book claims: QL4V2NB8HK from GRACE MUTHONI (0711***902) at 18:20. Customers often pay from a relative's phone.",
+            "order": 2,
+            "played": true,
+            "beaten_by": null,
+            "why_beaten": ""
+          },
+          "why_beaten": "A payment of exactly this amount arrived the same day and no one else claims it."
+        },
+        {
+          "agent": "mpesa",
+          "kind": "unknown-payer",
+          "says": "0711***902 isn't in the shop's contacts. I can't confirm GRACE MUTHONI paid for Mama Faith.",
+          "order": 2,
+          "played": true,
+          "beaten_by": null,
+          "why_beaten": ""
+        }
+      ]
+    },
+    "moves": [
+      {
+        "turn": 1,
+        "agent": "ledger",
+        "act": "open",
+        "kind": "book-entry",
+        "says": "My book entry L-115 says Mama Faith paid KES 800 by M-Pesa on 2026-10-16. No code was written down.",
+        "claim": 800
+      },
+      {
+        "turn": 2,
+        "agent": "mpesa",
+        "act": "rebut",
+        "kind": "no-payment-from-number",
+        "says": "No payment came from Mama Faith's number (0733***208) on 2026-10-16.",
+        "claim": 0,
+        "target": "book-entry",
+        "why": "There's no code in the book to check, and the customer's own number didn't pay that day."
+      },
+      {
+        "turn": 3,
+        "agent": "ledger",
+        "act": "rebut",
+        "kind": "same-day-payment",
+        "says": "But your statement has KES 800 that day that nobody in my book claims: QL4V2NB8HK from GRACE MUTHONI (0711***902) at 18:20. Customers often pay from a relative's phone.",
+        "claim": null,
+        "target": "no-payment-from-number",
+        "why": "A payment of exactly this amount arrived the same day and no one else claims it."
+      },
+      {
+        "turn": 4,
+        "agent": "mpesa",
+        "act": "present",
+        "kind": "unknown-payer",
+        "says": "0711***902 isn't in the shop's contacts. I can't confirm GRACE MUTHONI paid for Mama Faith.",
+        "claim": null
+      },
+      {
+        "turn": 5,
+        "agent": "ledger",
+        "act": "pass"
+      },
+      {
+        "turn": 6,
+        "agent": "mpesa",
+        "act": "pass"
+      }
+    ],
+    "outcome": "escalated",
+    "agreed": null,
+    "conceded_by": null,
+    "confidence": null,
+    "action": "",
+    "owner_question": "Ask Mama Faith: did you pay KES 800 on 2026-10-16 from 0711***902 (GRACE MUTHONI)?",
+    "belief_change": {}
+  }
+]
