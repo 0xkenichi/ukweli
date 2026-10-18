@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ukweli</title>
+<style>
+  :root {
+    --bg: #f6f3ee;
+    --panel: #ffffff;
+    --ink: #1d1b18;
+    --muted: #6f6a62;
+    --line: #e4ded4;
+    --ledger: #b8741a;
+    --ledger-soft: #fbf1e2;
+    --mpesa: #1f8a4c;
+    --mpesa-soft: #e6f5ec;
+    --owner: #3b5bdb;
+    --owner-soft: #e9eefc;
+    --bad: #c0392b;
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(0,0,0,.05), 0 4px 16px rgba(0,0,0,.05);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  button { font: inherit; cursor: pointer; }
+
+  header {
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    padding: 16px 24px; border-bottom: 1px solid var(--line); background: var(--panel);
+  }
+  .brand { display: flex; align-items: baseline; gap: 12px; }
+  .brand h1 { margin: 0; font-size: 24px; letter-spacing: -.02em; }
+  .brand span { color: var(--muted); }
+  .spacer { flex: 1; }
+  .toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+  .toggle button { border: 0; background: none; padding: 6px 14px; color: var(--muted); }
+  .toggle button.on { background: var(--ink); color: #fff; }
+  .link { border: 0; background: none; color: var(--muted); text-decoration: underline; padding: 4px; }
+
+  .layout { display: grid; grid-template-columns: 300px 1fr; gap: 24px; padding: 24px; max-width: 1240px; margin: 0 auto; }
+
+  .summary { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
+  .cases { display: flex; flex-direction: column; gap: 8px; }
+  .case {
+    text-align: left; border: 1px solid var(--line); background: var(--panel); border-radius: 12px;
+    padding: 10px 12px; color: var(--ink); display: grid; gap: 6px;
+  }
+  .case:hover { border-color: #cfc6b8; }
+  .case.on { border-color: var(--ink); box-shadow: var(--shadow); }
+  .case .n { font-size: 12px; color: var(--muted); }
+  .case .q { font-size: 13.5px; line-height: 1.35; }
+  .chip { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 999px; width: fit-content; }
+  .chip.settled { background: var(--mpesa-soft); color: var(--mpesa); }
+  .chip.escalated { background: var(--owner-soft); color: var(--owner); }
+
+  main { min-width: 0; }
+  .question { font-size: 22px; line-height: 1.3; margin: 0 0 16px; letter-spacing: -.01em; }
+
+  .agents { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .agent { background: var(--panel); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); border-top: 4px solid; }
+  .agent.ledger { border-color: var(--ledger); }
+  .agent.mpesa { border-color: var(--mpesa); }
+  .agent .who { font-weight: 600; display: flex; gap: 8px; align-items: center; }
+  .agent .sees { color: var(--muted); font-size: 13px; }
+  .agent .belief { font-size: 26px; font-weight: 700; margin-top: 6px; font-variant-numeric: tabular-nums; }
+  .agent .belief s { color: var(--muted); font-weight: 400; font-size: 18px; margin-right: 8px; }
+  .agent.ledger .belief { color: var(--ledger); }
+  .agent.mpesa .belief { color: var(--mpesa); }
+
+  .controls { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+  .btn { border: 1px solid var(--ink); background: var(--ink); color: #fff; border-radius: 999px; padding: 8px 16px; }
+  .btn.ghost { background: transparent; color: var(--ink); }
+  .btn:disabled { opacity: .4; cursor: default; }
+  .controls label { color: var(--muted); font-size: 13px; display: flex; gap: 6px; align-items: center; }
+
+  .debate { background: var(--panel); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; min-height: 220px; display: flex; flex-direction: column; gap: 10px; }
+  .msg { max-width: 78%; padding: 10px 14px; border-radius: 14px; animation: in .25s ease-out; }
+  @keyframes in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .msg.ledger { align-self: flex-start; background: var(--ledger-soft); border-bottom-left-radius: 4px; }
+  .msg.mpesa { align-self: flex-end; background: var(--mpesa-soft); border-bottom-right-radius: 4px; }
+  .msg .tag { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; }
+  .msg.ledger .tag { color: var(--ledger); }
+  .msg.mpesa .tag { color: var(--mpesa); }
+  .msg.rebut { border: 1.5px solid currentColor; }
+  .msg.ledger.rebut { border-color: var(--ledger); }
+  .msg.mpesa.rebut { border-color: var(--mpesa); }
+  .rule { display: inline-block; margin-top: 6px; font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--muted); background: rgba(0,0,0,.04); padding: 1px 6px; border-radius: 6px; }
+  .event { align-self: center; font-size: 13px; color: var(--muted); padding: 4px 12px; border-radius: 999px; background: var(--bg); animation: in .25s ease-out; }
+  .event.concede { color: var(--ink); font-weight: 600; }
+  .typing { color: var(--muted); font-size: 13px; }
+  .typing.ledger { align-self: flex-start; }
+  .typing.mpesa { align-self: flex-end; }
+  .empty { color: var(--muted); margin: auto; text-align: center; }
+
+  .verdict { margin-top: 16px; background: var(--panel); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px 18px; border-left: 4px solid var(--mpesa); animation: in .3s ease-out; }
+  .verdict.ask { border-color: var(--owner); }
+  .verdict h3 { margin: 0 0 8px; font-size: 18px; }
+  .meter { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; margin: 4px 0 12px; max-width: 280px; }
+  .meter i { display: block; height: 100%; background: var(--mpesa); }
+  .label { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-top: 10px; }
+  .action { font-size: 16px; margin: 2px 0 0; }
+  .diff { font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; margin-top: 4px; }
+  .diff .old { color: var(--bad); text-decoration: line-through; }
+  .diff .new { color: var(--mpesa); }
+  .answers { display: flex; gap: 8px; margin-top: 12px; }
+  .answers .btn { background: var(--owner); border-color: var(--owner); }
+  .answers .btn.ghost { background: transparent; color: var(--owner); }
+  .learned { margin-top: 12px; font-size: 13px; color: var(--owner); background: var(--owner-soft); padding: 8px 12px; border-radius: 10px; }
+  .note { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+  footer { text-align: center; color: var(--muted); font-size: 12px; padding: 8px 24px 32px; }
+  code { font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; padding: 16px; gap: 16px; }
+    aside { min-width: 0; }
+    .cases { flex-direction: row; overflow-x: auto; padding-bottom: 4px; scroll-snap-type: x mandatory; }
+    .case { flex: 0 0 220px; scroll-snap-align: start; }
+    .msg { max-width: 92%; }
+    .agent .belief { font-size: 20px; }
+    .agent .belief s { font-size: 14px; }
+    .question { font-size: 19px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><h1>Ukweli</h1><span id="tagline"></span></div>
+  <div class="spacer"></div>
+  <div class="toggle" role="group" aria-label="Language">
+    <button data-lang="en" class="on">English</button>
+    <button data-lang="sw">Kiswahili</button>
+  </div>
+  <button class="link" id="forget"></button>
+</header>
+
+<div class="layout">
+  <aside>
+    <p class="summary" id="summary"></p>
+    <div class="cases" id="cases"></div>
+  </aside>
+
+  <main>
+    <h2 class="question" id="question"></h2>
+    <div class="agents">
+      <div class="agent ledger"><div class="who">📒 <span id="ledger-name"></span></div><div class="sees" id="ledger-sees"></div><div class="belief" id="ledger-belief"></div></div>
+      <div class="agent mpesa"><div class="who">📱 <span id="mpesa-name"></span></div><div class="sees" id="mpesa-sees"></div><div class="belief" id="mpesa-belief"></div></div>
+    </div>
+    <div class="controls">
+      <button class="btn" id="play"></button>
+      <button class="btn ghost" id="skip"></button>
+      <label><span id="speed-label"></span>
+        <select id="speed"><option value="1800">1×</option><option value="1000" selected>2×</option><option value="450">4×</option></select>
+      </label>
+    </div>
+    <div class="debate" id="debate"></div>
+    <div id="verdict"></div>
+  </main>
+</div>
+
+<footer id="footer"></footer>
+
+<script>
+const T = {
+  en: {
+    tagline: "Two agents. One truth.",
+    forget: "Forget owner's answers",
+    summary: (n, s, a) => `${n} disagreements found · ${s} settled by the agents · ${a} for the owner`,
+    ledger: "Ledger agent", ledgerSees: "Knows only the shop book",
+    mpesa: "M-Pesa agent", mpesaSees: "Knows only the M-Pesa statement",
+    play: "▶ Play debate", replay: "↻ Replay", skip: "Show all", speed: "Speed",
+    believes: "believes", rebuts: "Rebuts", evidence: "New evidence",
+    concedes: (who, amt) => `${who} concedes and now believes ${amt}`,
+    pass: who => `${who} has nothing to add`,
+    settledChip: amt => `Settled: ${amt}`, askChip: "Ask the owner",
+    agreed: amt => `Agreed: ${amt}`, confidence: "Confidence", whatToDo: "What the owner should do",
+    beliefChanged: "Belief change, saved in MeTTa",
+    cantAgree: "The agents can't agree", askOwner: "One question for the owner",
+    yes: "Yes", no: "No",
+    learnedNote: "Your answer is saved in memory/learned.metta. The agents will use it in every debate from now on.",
+    learnedBanner: "The owner answered. Debating again with what they learned…",
+    empty: "Press play to watch the agents debate.",
+    footer: "All reasoning comes from MeTTa rules in <code>metta/ukweli.metta</code>. Sample data is made up.",
+    swNote: "",
+  },
+  sw: {
+    tagline: "Mawakala wawili. Ukweli mmoja.",
+    forget: "Futa majibu ya mwenye duka",
+    summary: (n, s, a) => `Tofauti ${n} · ${s} zimetatuliwa na mawakala · ${a} kwa mwenye duka`,
+    ledger: "Wakala wa Kitabu", ledgerSees: "Anajua kitabu cha duka tu",
+    mpesa: "Wakala wa M-Pesa", mpesaSees: "Anajua taarifa ya M-Pesa tu",
+    play: "▶ Anza mjadala", replay: "↻ Rudia", skip: "Onyesha yote", speed: "Kasi",
+    believes: "anaamini", rebuts: "Anapinga", evidence: "Ushahidi mpya",
+    concedes: (who, amt) => `${who} anakubali; sasa anaamini ${amt}`,
+    pass: who => `${who} hana la kuongeza`,
+    settledChip: amt => `Imetatuliwa: ${amt}`, askChip: "Muulize mwenye duka",
+    agreed: amt => `Wamekubaliana: ${amt}`, confidence: "Uhakika", whatToDo: "Kazi kwa mwenye duka",
+    beliefChanged: "Imani iliyobadilika, imehifadhiwa kwenye MeTTa",
+    cantAgree: "Mawakala hawakubaliani", askOwner: "Swali moja kwa mwenye duka",
+    yes: "Ndiyo", no: "Hapana",
+    learnedNote: "Jibu lako limehifadhiwa kwenye memory/learned.metta. Mawakala watalitumia kila mjadala kuanzia sasa.",
+    learnedBanner: "Mwenye duka amejibu. Wanajadili tena kwa walichojifunza…",
+    empty: "Bonyeza kuanza kuona mawakala wakijadiliana.",
+    footer: "Hoja zote zinatoka kwenye kanuni za MeTTa katika <code>metta/ukweli.metta</code>. Data ni ya mfano.",
+    swNote: "Mjadala wa mawakala uko kwa Kiingereza; maamuzi na maswali kwa mwenye duka yako kwa Kiswahili.",
+  },
+};
+
+let lang = "en", data = null, current = 0, shown = 0, timer = null, banner = "";
+const $ = id => document.getElementById(id);
+const t = () => T[lang];
+const kes = s => String(s).replace(/KES (\d{4,})/g, (_, n) => "KES " + Number(n).toLocaleString("en-US"));
+const money = n => "KES " + Number(n).toLocaleString("en-US");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const agentName = a => a === "ledger" ? t().ledger : t().mpesa;
+const debate = () => data.debates[current];
+
+async function api(path, body) {
+  const res = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : undefined);
+  return res.json();
+}
+
+function renderStatic() {
+  $("tagline").textContent = t().tagline;
+  $("forget").textContent = t().forget;
+  $("ledger-name").textContent = t().ledger; $("ledger-sees").textContent = t().ledgerSees;
+  $("mpesa-name").textContent = t().mpesa; $("mpesa-sees").textContent = t().mpesaSees;
+  $("skip").textContent = t().skip; $("speed-label").textContent = t().speed;
+  $("footer").innerHTML = t().footer + (t().swNote ? "<br>" + t().swNote : "");
+  document.querySelectorAll(".toggle button").forEach(b => b.classList.toggle("on", b.dataset.lang === lang));
+  document.documentElement.lang = lang;
+}
+
+function renderCases() {
+  const ds = data.debates;
+  const settled = ds.filter(d => d.outcome === "settled").length;
+  $("summary").textContent = t().summary(ds.length, settled, ds.length - settled);
+  $("cases").innerHTML = ds.map((d, i) => `
+    <button class="case ${i === current ? "on" : ""}" data-i="${i}">
+      <span class="n">#${i + 1}</span>
+      <span class="q">${esc(kes(lang === "sw" ? d.question_sw : d.question))}</span>
+      ${d.outcome === "settled"
+        ? `<span class="chip settled">${t().settledChip(money(d.agreed))}</span>`
+        : `<span class="chip escalated">${t().askChip}</span>`}
+    </button>`).join("");
+  document.querySelectorAll(".case").forEach(b => b.onclick = () => select(Number(b.dataset.i)));
+}
+
+function beliefs() {
+  const d = debate();
+  const b = { ledger: money(d.claims.ledger), mpesa: money(d.claims.mpesa) };
+  const conceded = d.moves.slice(0, shown).find(m => m.act === "concede");
+  if (conceded) b[conceded.agent] = `<s>${money(d.claims[conceded.agent])}</s>${money(conceded.claim)}`;
+  $("ledger-belief").innerHTML = b.ledger;
+  $("mpesa-belief").innerHTML = b.mpesa;
+}
+
+function moveHtml(m) {
+  const who = agentName(m.agent);
+  if (m.act === "concede") return `<div class="event concede">✓ ${esc(t().concedes(who, money(m.claim)))}</div>`;
+  if (m.act === "pass") return `<div class="event">${esc(t().pass(who))}</div>`;
+  let html = "";
+  if (m.says) {
+    const tag = m.claim != null ? `${who} · ${t().believes} ${money(m.claim)}` : (m.act === "present" ? `${who} · ${t().evidence}` : who);
+    html += `<div class="msg ${m.agent}"><div class="tag">${esc(tag)}</div>${esc(kes(m.says))}</div>`;
+  }
+  if (m.act === "rebut") {
+    html += `<div class="msg ${m.agent} rebut"><div class="tag">${esc(who)} · ${t().rebuts}</div>${esc(m.why)}
+      <div><span class="rule">${esc(m.kind)} beats ${esc(m.target)}</span></div></div>`;
+  }
+  return html;
+}
+
+function renderDebate() {
+  const d = debate();
+  $("question").textContent = kes(lang === "sw" ? d.question_sw : d.question);
+  const box = $("debate");
+  const moves = d.moves.slice(0, shown).map(moveHtml).join("");
+  const typing = timer && shown < d.moves.length
+    ? `<div class="typing ${d.moves[shown].agent}">${esc(agentName(d.moves[shown].agent))} …</div>` : "";
+  const top = banner ? `<div class="learned">${esc(banner)}</div>` : "";
+  box.innerHTML = top + (moves || typing ? moves + typing : `<div class="empty">${t().empty}</div>`);
+  box.scrollTop = box.scrollHeight;
+  beliefs();
+  $("play").textContent = shown >= d.moves.length ? t().replay : t().play;
+  $("play").disabled = !!timer;
+  $("skip").disabled = shown >= d.moves.length;
+  renderVerdict();
+}
+
+function renderVerdict() {
+  const d = debate(), v = $("verdict");
+  if (shown < d.moves.length) { v.innerHTML = ""; return; }
+  if (d.outcome === "settled") {
+    const b = d.belief_change;
+    v.innerHTML = `<div class="verdict">
+      <h3>${t().agreed(money(d.agreed))}</h3>
+      <div class="label">${t().confidence} ${Math.round(d.confidence * 100)}%</div>
+      <div class="meter"><i style="width:${d.confidence * 100}%"></i></div>
+      <div class="label">${t().whatToDo}</div>
+      <p class="action">${esc(kes(lang === "sw" ? d.action_sw : d.action))}</p>
+      <div class="label">${t().beliefChanged}</div>
+      <div class="diff">(belief ${b.agent} ${esc(d.case)} <span class="old">(kes ${b.old})</span> → <span class="new">(kes ${b.new})</span>)</div>
+    </div>`;
+  } else {
+    v.innerHTML = `<div class="verdict ask">
+      <h3>${t().cantAgree}</h3>
+      <div class="label">${t().askOwner}</div>
+      <p class="action">${esc(kes(lang === "sw" ? d.owner_question_sw : d.owner_question))}</p>
+      ${d.ask && d.ask.customer ? `<div class="answers">
+        <button class="btn" id="yes">${t().yes}</button>
+        <button class="btn ghost" id="no">${t().no}</button>
+      </div>` : ""}
+    </div>`;
+    if (d.ask && d.ask.customer) {
+      $("yes").onclick = () => answer(true);
+      $("no").onclick = () => answer(false);
+    }
+  }
+}
+
+function play() {
+  stop();
+  shown = 0;
+  const step = () => {
+    renderDebate();
+    if (shown >= debate().moves.length) { stop(); renderDebate(); return; }
+    timer = setTimeout(() => { shown++; step(); }, Number($("speed").value));
+  };
+  timer = -1;
+  step();
+}
+
+function stop() { if (timer && timer !== -1) clearTimeout(timer); timer = null; }
+
+function select(i) {
+  stop(); banner = ""; current = i; shown = 0;
+  renderCases(); renderDebate();
+}
+
+async function answer(yes) {
+  const ask = debate().ask, kase = debate().case;
+  data = await api("/api/answer", { customer: ask.customer, phone: ask.phone, answer: yes });
+  current = Math.max(0, data.debates.findIndex(d => d.case === kase));
+  renderCases();
+  banner = `${t().learnedBanner} ${t().learnedNote}`;
+  play();
+}
+
+$("play").onclick = play;
+$("skip").onclick = () => { stop(); shown = debate().moves.length; renderDebate(); };
+$("forget").onclick = async () => { data = await api("/api/forget", {}); select(current); };
+document.querySelectorAll(".toggle button").forEach(b => b.onclick = () => {
+  lang = b.dataset.lang; renderStatic(); renderCases(); renderDebate();
+});
+
+(async () => {
+  renderStatic();
+  data = await api("/api/debates");
+  select(0);
+})();
+</script>
+</body>
+</html>

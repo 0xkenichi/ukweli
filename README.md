@@ -4,7 +4,7 @@
 
 Small shops in Kenya keep two records of the same money: a sales book written by hand, and the M-Pesa statement from Safaricom. When the two disagree (a reversed payment, a typo, an entry written twice, a payment nobody wrote down), sorting it out by hand takes hours and can end in arguments with customers.
 
-Ukweli gives each record its own agent. When they disagree, the two agents debate using MeTTa rules. They bring evidence, rebut each other and concede when they're beaten, until they agree on one answer. If they can't agree, they ask the owner the one question that would settle it. Every step goes into an audit trail that the owner can read and overrule.
+Ukweli gives each record its own agent. When they disagree, the two agents debate using MeTTa rules. They bring evidence, rebut each other and concede when they're beaten, until they agree on one answer. If they can't agree, they ask the owner the one question that would settle it, and **remember the answer**, so next time they settle that case on their own. Every step goes into an audit trail that the owner can read and overrule, in English or Swahili.
 
 **Hackathon:** State of the Art Hackathon 2026 (BASIX.MARKET × SingularityNET × Omega)
 **Track:** Track 02 Builders: Omega AI Agents
@@ -34,7 +34,7 @@ With the sample data, the agents find 6 disagreements, settle 5 of them, and pas
 | Same M-Pesa code written twice | Ledger | Delete the duplicate |
 | Owner's own top-up counted as money in | M-Pesa | Not a sale, record it as a float top-up |
 | Payment missing from the book | Ledger | Add it and close the customer's open debt |
-| Book says paid, no code, unknown number paid the same amount | Nobody | Ask the owner to check with the customer |
+| Book says paid, no code, unknown number paid the same amount | Nobody | Ask the owner. Once the owner answers, the agents learn it and settle the case themselves |
 
 The full trail is written to [`audit/AUDIT.md`](audit/AUDIT.md) and `audit/audit.json`.
 
@@ -49,16 +49,18 @@ data/*.csv ──► MeTTa spaces ──► (detect) finds disagreements
                          ├─ (args agent case)      evidence each can bring
                          ├─ (defeats a b why)      which evidence beats which
                          ├─ (revise ...)           loser rewrites its belief in &beliefs
-                         └─ (settle case) / (escalate case)
-                                  │
-                                  ▼
-                       terminal debate + audit/AUDIT.md
+                         └─ (settle case) / (escalate case) ──► owner answers
+                                  │                                      │
+                                  ▼                                      ▼
+                  web page / terminal + audit/AUDIT.md     memory/learned.metta (loaded next run)
 ```
 
 - **Two agents with separate knowledge.** The Ledger agent only sees `&ledger` (sales book, credit book, contacts). The M-Pesa agent only sees `&mpesa` (the statement).
 - **All reasoning is in MeTTa.** The rules in [`metta/ukweli.metta`](metta/ukweli.metta) decide what counts as a disagreement, what each agent claims, what evidence it has, which evidence beats which and why, and what the owner should do. Python ([`ukweli/debate.py`](ukweli/debate.py)) only takes turns and keeps score.
 - **The debate protocol.** On each turn an agent rebuts if it can. If none of its evidence is still standing, it brings new evidence. If it has nothing left, it concedes. If both agents pass, the case goes to the owner. Evidence that was beaten comes back into play if whatever beat it gets beaten in turn.
 - **Visible belief change.** When an agent concedes, it rewrites its belief in the `&beliefs` space and keeps a `(revision agent case old new why)` atom, so every change of mind can be traced.
+- **Learning from the owner.** The owner's answer to an escalated question is saved as a MeTTa fact, for example `(learned-phone faith "0711***902" yes "2026-10-18")`, in `memory/learned.metta`. It's loaded into `&ledger` on every run and becomes new evidence (`owner-confirmed` or `owner-denied`) in the next debate.
+- **Swahili for the owner.** Case questions, owner actions and owner questions come from MeTTa rules in both English and Swahili.
 
 ## Setup
 
@@ -72,11 +74,28 @@ pip install -r requirements.txt
 
 ## Run
 
+**Live debate page** (best for the demo):
+
+```bash
+python server.py
+```
+
+Then open http://localhost:8000. Pick a case, press **Play debate**, and switch between English and Kiswahili at the top. On case 6, answer the owner's question and watch the agents debate again with what they learned. **Forget owner's answers** resets the demo.
+
+**Terminal:**
+
 ```bash
 python run.py
 ```
 
-Options: `--data <folder>` to use other CSV files, `--out <folder>` for the audit trail, `--no-color`.
+| Option | What it does |
+|---|---|
+| `--lang sw` | Questions and owner actions in Swahili |
+| `--ask` | Ask the owner the agents' questions, save the answers, then debate again |
+| `--forget` | Forget everything the owner taught |
+| `--data <folder>` | Use other CSV files |
+| `--out <folder>` | Where to write the audit trail |
+| `--no-color` | Plain output |
 
 ## Test
 
@@ -90,11 +109,22 @@ All data in `data/` is made up. See [`data/README.md`](data/README.md).
 
 ## What's next
 
-- [ ] Web page that shows the debate live, for the demo video
-- [ ] Explanations in Swahili for the owner
-- [ ] Learning from the owner: when the owner answers an escalated question (e.g. "yes, 0711***902 is Mama Faith's daughter"), save it as a new fact so the agents settle that case on their own next time
+- [x] Web page that shows the debate live, for the demo video
+- [x] Questions and owner actions in Swahili (needs a check by a native speaker)
+- [x] Learning from the owner: answers are saved as MeTTa facts and used in later debates
+- [ ] The agents' own lines in Swahili too
 - [ ] Run the agents on Omega's agent infrastructure (waiting on the Omega resources on BASIX.MARKET)
 - [ ] Import real M-Pesa statement exports (PDF/CSV)
+
+## Demo script (3 minutes)
+
+1. **The problem (20 s).** A duka owner has a sales book and an M-Pesa statement that don't agree.
+2. **Case 1 (40 s).** Play it. The customer showed an SMS, but the M-Pesa agent shows the reversal. The Ledger agent concedes, and its belief changes from KES 500 to KES 0.
+3. **Case 4 (20 s).** This time the M-Pesa agent concedes: the money came from the owner's own phone.
+4. **Case 6 (50 s).** The agents can't agree and ask the owner one question. Click **Yes**. They debate again, and this time settle it on their own.
+5. **Kiswahili (15 s).** Switch the language. The owner's instructions are in Swahili.
+6. **Under the hood (25 s).** Show `metta/ukweli.metta`, the `defeats` rules and `audit/AUDIT.md`.
+7. **What's next (10 s).** Real M-Pesa statement imports, and running on Omega.
 
 ## Team
 
