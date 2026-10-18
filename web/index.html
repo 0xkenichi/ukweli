@@ -183,6 +183,7 @@ const T = {
     learnedNote: "Your answer is saved in memory/learned.metta. The agents will use it in every debate from now on.",
     learnedBanner: "The owner answered. Debating again with what they learned…",
     empty: "Press play to watch the agents debate.",
+    loading: "The agents are reading the shop book and the M-Pesa statement…",
     footer: "All reasoning comes from MeTTa rules in <code>metta/ukweli.metta</code>. Sample data is made up.",
     swNote: "",
   },
@@ -204,6 +205,7 @@ const T = {
     learnedNote: "Jibu lako limehifadhiwa kwenye memory/learned.metta. Mawakala watalitumia kila mjadala kuanzia sasa.",
     learnedBanner: "Mwenye duka amejibu. Wanajadili tena kwa walichojifunza…",
     empty: "Bonyeza kuanza kuona mawakala wakijadiliana.",
+    loading: "Mawakala wanasoma kitabu cha duka na taarifa ya M-Pesa…",
     footer: "Hoja zote zinatoka kwenye kanuni za MeTTa katika <code>metta/ukweli.metta</code>. Data ni ya mfano.",
     swNote: "Mjadala wa mawakala uko kwa Kiingereza; maamuzi na maswali kwa mwenye duka yako kwa Kiswahili.",
   },
@@ -359,6 +361,9 @@ document.querySelectorAll(".toggle button").forEach(b => b.onclick = () => {
 
 (async () => {
   renderStatic();
+  $("play").textContent = t().play;
+  $("play").disabled = $("skip").disabled = true;
+  $("debate").innerHTML = `<div class="empty">${t().loading}</div>`;
   data = await api("/api/debates");
   select(0);
 })();
