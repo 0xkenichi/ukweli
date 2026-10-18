@@ -4,369 +4,259 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ukweli</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f6f3ee;
-    --panel: #ffffff;
-    --ink: #1d1b18;
-    --muted: #6f6a62;
-    --line: #e4ded4;
-    --ledger: #b8741a;
-    --ledger-soft: #fbf1e2;
-    --mpesa: #1f8a4c;
-    --mpesa-soft: #e6f5ec;
-    --owner: #3b5bdb;
-    --owner-soft: #e9eefc;
-    --bad: #c0392b;
-    --radius: 14px;
-    --shadow: 0 1px 2px rgba(0,0,0,.05), 0 4px 16px rgba(0,0,0,.05);
+    --bg: #06070c;
+    --ink: #f3f0ea;
+    --muted: rgba(243, 240, 234, .58);
+    --faint: rgba(243, 240, 234, .14);
+    --glass: rgba(14, 15, 24, .62);
+    --glass-strong: rgba(14, 15, 24, .82);
+    --ledger: #f2a33a;
+    --mpesa: #2fd27a;
+    --owner: #7b93ff;
+    --gold: #ffcf6b;
+    --bad: #ff6b5e;
+    --display: "Space Grotesk", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --r: 18px;
   }
   * { box-sizing: border-box; }
-  body {
-    margin: 0; background: var(--bg); color: var(--ink);
-    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  }
-  button { font: inherit; cursor: pointer; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); overflow: hidden; }
+  body { font: 15px/1.45 var(--display); -webkit-font-smoothing: antialiased; }
+  button, select { font: inherit; color: inherit; }
+  button { cursor: pointer; }
 
-  header {
-    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
-    padding: 16px 24px; border-bottom: 1px solid var(--line); background: var(--panel);
-  }
-  .brand { display: flex; align-items: baseline; gap: 12px; }
-  .brand h1 { margin: 0; font-size: 24px; letter-spacing: -.02em; }
-  .brand span { color: var(--muted); }
-  .spacer { flex: 1; }
-  .toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
-  .toggle button { border: 0; background: none; padding: 6px 14px; color: var(--muted); }
-  .toggle button.on { background: var(--ink); color: #fff; }
-  .link { border: 0; background: none; color: var(--muted); text-decoration: underline; padding: 4px; }
+  #stage { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+  .vignette { position: fixed; inset: 0; pointer-events: none;
+    background: radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(0,0,0,.65) 100%); }
 
-  .layout { display: grid; grid-template-columns: 300px 1fr; gap: 24px; padding: 24px; max-width: 1240px; margin: 0 auto; }
+  .ui { position: fixed; inset: 0; display: grid; grid-template-rows: auto auto 1fr auto; pointer-events: none; padding: 18px 22px; gap: 14px; }
+  .ui > * { pointer-events: auto; }
+  .glass { background: var(--glass); backdrop-filter: blur(14px) saturate(140%); -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border: 1px solid var(--faint); border-radius: var(--r); }
 
-  .summary { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
-  .cases { display: flex; flex-direction: column; gap: 8px; }
-  .case {
-    text-align: left; border: 1px solid var(--line); background: var(--panel); border-radius: 12px;
-    padding: 10px 12px; color: var(--ink); display: grid; gap: 6px;
-  }
-  .case:hover { border-color: #cfc6b8; }
-  .case.on { border-color: var(--ink); box-shadow: var(--shadow); }
-  .case .n { font-size: 12px; color: var(--muted); }
-  .case .q { font-size: 13.5px; line-height: 1.35; }
-  .chip { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 999px; width: fit-content; }
-  .chip.settled { background: var(--mpesa-soft); color: var(--mpesa); }
-  .chip.escalated { background: var(--owner-soft); color: var(--owner); }
+  /* ---------- Top bar ---------- */
+  .top { display: flex; align-items: center; gap: 16px; }
+  .brand { display: flex; align-items: baseline; gap: 12px; white-space: nowrap; }
+  .brand b { font-size: 22px; letter-spacing: .32em; font-weight: 700; }
+  .brand span { color: var(--muted); font-size: 13px; }
+  .cases { display: flex; gap: 6px; margin: 0 auto; padding: 5px; overflow-x: auto; scrollbar-width: none; max-width: 100%; }
+  .cases::-webkit-scrollbar { display: none; }
+  .case { border: 0; background: transparent; border-radius: 12px; padding: 7px 12px; display: flex; gap: 8px; align-items: center;
+    color: var(--muted); white-space: nowrap; transition: background .2s, color .2s; }
+  .case:hover { color: var(--ink); background: rgba(255,255,255,.05); }
+  .case.on { background: rgba(255,255,255,.1); color: var(--ink); }
+  .case .num { font-family: var(--mono); font-size: 12px; opacity: .7; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--mpesa); box-shadow: 0 0 10px var(--mpesa); }
+  .dot.ask { background: var(--owner); box-shadow: 0 0 10px var(--owner); }
+  .tools { display: flex; gap: 8px; align-items: center; }
+  .seg { display: inline-flex; padding: 3px; gap: 2px; border-radius: 999px; }
+  .seg button { border: 0; background: none; border-radius: 999px; padding: 6px 12px; color: var(--muted); font-size: 13px; }
+  .seg button.on { background: var(--ink); color: #111; }
+  .ghost { border: 1px solid var(--faint); background: none; border-radius: 999px; padding: 7px 12px; color: var(--muted); font-size: 13px; }
+  .ghost:hover { color: var(--ink); border-color: rgba(255,255,255,.3); }
 
-  main { min-width: 0; }
-  .question { font-size: 22px; line-height: 1.3; margin: 0 0 16px; letter-spacing: -.01em; }
+  /* ---------- Question + versus HUD ---------- */
+  .head { display: grid; justify-items: center; gap: 12px; }
+  .question { margin: 0; text-align: center; font-size: clamp(20px, 2.6vw, 34px); line-height: 1.15; letter-spacing: -.02em; font-weight: 600; max-width: 900px;
+    text-wrap: balance; }
+  .question .w { display: inline-block; opacity: 0; transform: translateY(10px); filter: blur(6px); transition: opacity .5s, transform .5s, filter .5s; }
+  .question .w.in { opacity: 1; transform: none; filter: none; }
 
-  .agents { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-  .agent { background: var(--panel); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); border-top: 4px solid; }
-  .agent.ledger { border-color: var(--ledger); }
-  .agent.mpesa { border-color: var(--mpesa); }
-  .agent .who { font-weight: 600; display: flex; gap: 8px; align-items: center; }
-  .agent .sees { color: var(--muted); font-size: 13px; }
-  .agent .belief { font-size: 26px; font-weight: 700; margin-top: 6px; font-variant-numeric: tabular-nums; }
-  .agent .belief s { color: var(--muted); font-weight: 400; font-size: 18px; margin-right: 8px; }
+  .versus { display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch; gap: 10px; width: min(860px, 100%); }
+  .agent { padding: 10px 16px; display: grid; gap: 2px; position: relative; overflow: hidden; }
+  .agent.ledger { border-color: rgba(242,163,58,.35); }
+  .agent.mpesa { border-color: rgba(47,210,122,.35); text-align: right; }
+  .agent .name { font-weight: 600; font-size: 14px; display: flex; gap: 8px; align-items: center; }
+  .agent.mpesa .name { justify-content: flex-end; }
+  .agent .sees { color: var(--muted); font-size: 12px; }
+  .agent .belief { font-size: 30px; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; line-height: 1.1; }
   .agent.ledger .belief { color: var(--ledger); }
   .agent.mpesa .belief { color: var(--mpesa); }
+  .agent .was { font-size: 14px; color: var(--muted); text-decoration: line-through; margin-right: 6px; font-weight: 500; }
+  .agent.mpesa .was { margin: 0 0 0 6px; }
+  .pips { display: flex; gap: 5px; margin-top: 4px; min-height: 10px; }
+  .agent.mpesa .pips { justify-content: flex-end; }
+  .pip { width: 22px; height: 6px; border-radius: 3px; background: currentColor; transition: opacity .3s, transform .3s; }
+  .agent.ledger .pip { color: var(--ledger); }
+  .agent.mpesa .pip { color: var(--mpesa); }
+  .pip.owner { color: var(--owner) !important; }
+  .pip.down { opacity: .22; transform: scaleY(.5); }
+  .agent.speaking::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    box-shadow: inset 0 0 0 1.5px currentColor; animation: ping 1s ease-out; }
+  .agent.ledger.speaking::after { color: var(--ledger); }
+  .agent.mpesa.speaking::after { color: var(--mpesa); }
+  @keyframes ping { from { opacity: 1; } to { opacity: 0; } }
+  .vs { display: grid; place-items: center; padding: 0 14px; min-width: 120px; text-align: center; }
+  .vs b { font-size: 13px; letter-spacing: .3em; color: var(--muted); }
+  .vs small { display: block; font-size: 12px; margin-top: 4px; color: var(--gold); font-family: var(--mono); }
 
-  .controls { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
-  .btn { border: 1px solid var(--ink); background: var(--ink); color: #fff; border-radius: 999px; padding: 8px 16px; }
-  .btn.ghost { background: transparent; color: var(--ink); }
-  .btn:disabled { opacity: .4; cursor: default; }
+  /* ---------- Bottom: caption + controls ---------- */
+  .bottom { display: grid; justify-items: center; gap: 10px; align-self: end; }
+  .caption { width: min(860px, 100%); padding: 14px 18px; min-height: 92px; display: grid; gap: 6px; }
+  .caption .who { display: flex; gap: 8px; align-items: center; font-size: 12px; text-transform: uppercase; letter-spacing: .12em; font-weight: 600; }
+  .caption .who.ledger { color: var(--ledger); }
+  .caption .who.mpesa { color: var(--mpesa); }
+  .caption .who.owner { color: var(--owner); }
+  .caption .who.gold { color: var(--gold); }
+  .caption .text { font-size: clamp(15px, 1.5vw, 19px); line-height: 1.4; min-height: 1.4em; }
+  .caption .text .cursor { display: inline-block; width: .5ch; background: currentColor; animation: blink .9s steps(1) infinite; margin-left: 2px; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .rule { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .rule em { color: var(--gold); font-style: normal; }
+
+  .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center; }
+  .play { border: 0; border-radius: 999px; padding: 10px 20px; font-weight: 600; color: #111;
+    background: linear-gradient(135deg, #ffe6a8, var(--gold)); box-shadow: 0 0 24px rgba(255,207,107,.35); }
+  .play:disabled { opacity: .45; cursor: default; box-shadow: none; }
   .controls label { color: var(--muted); font-size: 13px; display: flex; gap: 6px; align-items: center; }
+  .controls select { background: var(--glass-strong); border: 1px solid var(--faint); border-radius: 999px; padding: 6px 10px; }
 
-  .debate { background: var(--panel); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; min-height: 220px; display: flex; flex-direction: column; gap: 10px; }
-  .msg { max-width: 78%; padding: 10px 14px; border-radius: 14px; animation: in .25s ease-out; }
-  @keyframes in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-  .msg.ledger { align-self: flex-start; background: var(--ledger-soft); border-bottom-left-radius: 4px; }
-  .msg.mpesa { align-self: flex-end; background: var(--mpesa-soft); border-bottom-right-radius: 4px; }
-  .msg .tag { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; }
-  .msg.ledger .tag { color: var(--ledger); }
-  .msg.mpesa .tag { color: var(--mpesa); }
-  .msg.rebut { border: 1.5px solid currentColor; }
-  .msg.ledger.rebut { border-color: var(--ledger); }
-  .msg.mpesa.rebut { border-color: var(--mpesa); }
-  .rule { display: inline-block; margin-top: 6px; font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--muted); background: rgba(0,0,0,.04); padding: 1px 6px; border-radius: 6px; }
-  .event { align-self: center; font-size: 13px; color: var(--muted); padding: 4px 12px; border-radius: 999px; background: var(--bg); animation: in .25s ease-out; }
-  .event.concede { color: var(--ink); font-weight: 600; }
-  .typing { color: var(--muted); font-size: 13px; }
-  .typing.ledger { align-self: flex-start; }
-  .typing.mpesa { align-self: flex-end; }
-  .empty { color: var(--muted); margin: auto; text-align: center; }
-
-  .verdict { margin-top: 16px; background: var(--panel); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px 18px; border-left: 4px solid var(--mpesa); animation: in .3s ease-out; }
-  .verdict.ask { border-color: var(--owner); }
-  .verdict h3 { margin: 0 0 8px; font-size: 18px; }
-  .meter { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; margin: 4px 0 12px; max-width: 280px; }
-  .meter i { display: block; height: 100%; background: var(--mpesa); }
-  .label { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-top: 10px; }
-  .action { font-size: 16px; margin: 2px 0 0; }
-  .diff { font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; margin-top: 4px; }
+  /* ---------- Verdict ---------- */
+  .verdict { width: min(860px, 100%); padding: 18px 20px; position: relative; display: grid; grid-template-columns: auto 1fr; gap: 6px 20px;
+    background: var(--glass-strong); animation: rise .6s cubic-bezier(.2,.8,.2,1); }
+  .verdict::before { content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; pointer-events: none;
+    background: conic-gradient(from var(--a, 0deg), transparent 0 60%, var(--glow, var(--gold)) 75%, transparent 90%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+    animation: spin 3.5s linear infinite; }
+  .verdict.ask { --glow: var(--owner); }
+  @property --a { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+  @keyframes spin { to { --a: 360deg; } }
+  @keyframes rise { from { opacity: 0; transform: translateY(16px) scale(.98); } to { opacity: 1; transform: none; } }
+  .ring { grid-row: span 3; width: 86px; height: 86px; position: relative; }
+  .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .ring circle { fill: none; stroke-width: 7; }
+  .ring .track { stroke: var(--faint); }
+  .ring .bar { stroke: var(--gold); stroke-linecap: round; transition: stroke-dashoffset 1.4s cubic-bezier(.2,.8,.2,1); }
+  .ring span { position: absolute; inset: 0; display: grid; place-items: center; font-weight: 700; font-size: 18px; }
+  .verdict h3 { margin: 0; font-size: 24px; letter-spacing: -.02em; }
+  .verdict h3 em { font-style: normal; color: var(--gold); }
+  .verdict .label { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  .verdict .action { margin: 0; font-size: 16px; }
+  .verdict .diff { font-family: var(--mono); font-size: 12px; color: var(--muted); grid-column: 1 / -1; padding-top: 8px; border-top: 1px solid var(--faint); overflow-wrap: anywhere; }
   .diff .old { color: var(--bad); text-decoration: line-through; }
   .diff .new { color: var(--mpesa); }
-  .answers { display: flex; gap: 8px; margin-top: 12px; }
-  .answers .btn { background: var(--owner); border-color: var(--owner); }
-  .answers .btn.ghost { background: transparent; color: var(--owner); }
-  .learned { margin-top: 12px; font-size: 13px; color: var(--owner); background: var(--owner-soft); padding: 8px 12px; border-radius: 10px; }
-  .note { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .orb { grid-row: span 3; width: 86px; height: 86px; border-radius: 50%; position: relative;
+    background: radial-gradient(circle at 35% 30%, #fff, var(--owner) 45%, #1d2560 100%); box-shadow: 0 0 40px rgba(123,147,255,.55); animation: float 3s ease-in-out infinite; }
+  @keyframes float { 50% { transform: translateY(-6px); } }
+  .answers { display: flex; gap: 8px; margin-top: 6px; }
+  .answers button { border-radius: 999px; padding: 9px 22px; font-weight: 600; border: 1px solid var(--owner); }
+  .answers .yes { background: var(--owner); color: #0b0f2a; }
+  .answers .no { background: none; color: var(--owner); }
+  .learned { width: min(860px, 100%); padding: 10px 16px; color: #cfd7ff; border-color: rgba(123,147,255,.4); font-size: 14px; animation: rise .5s ease-out; }
 
-  footer { text-align: center; color: var(--muted); font-size: 12px; padding: 8px 24px 32px; }
-  code { font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
-  @media (max-width: 860px) {
-    .layout { grid-template-columns: 1fr; padding: 16px; gap: 16px; }
-    aside { min-width: 0; }
-    .cases { flex-direction: row; overflow-x: auto; padding-bottom: 4px; scroll-snap-type: x mandatory; }
-    .case { flex: 0 0 220px; scroll-snap-align: start; }
-    .msg { max-width: 92%; }
-    .agent .belief { font-size: 20px; }
-    .agent .belief s { font-size: 14px; }
-    .question { font-size: 19px; }
+  /* ---------- Log drawer ---------- */
+  .log { position: fixed; top: 76px; right: 18px; bottom: 18px; width: min(380px, calc(100vw - 36px)); padding: 16px; overflow: auto;
+    transform: translateX(calc(100% + 30px)); transition: transform .45s cubic-bezier(.2,.8,.2,1); pointer-events: auto; background: var(--glass-strong); }
+  .log.open { transform: none; }
+  .log h4 { margin: 0 0 10px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  .log ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+  .log li { font-size: 13px; padding-left: 12px; border-left: 2px solid var(--faint); animation: rise .35s ease-out; }
+  .log li.ledger { border-color: var(--ledger); }
+  .log li.mpesa { border-color: var(--mpesa); }
+  .log li b { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); display: block; }
+  .log li .rule { display: block; margin-top: 3px; }
+
+  .loading { position: fixed; inset: 0; display: grid; place-items: center; background: var(--bg); z-index: 5; transition: opacity .8s; }
+  .loading.gone { opacity: 0; pointer-events: none; }
+  .loading p { color: var(--muted); font-size: 15px; display: grid; justify-items: center; gap: 18px; text-align: center; padding: 0 24px; }
+  .loading b { font-size: 34px; letter-spacing: .4em; color: var(--ink); }
+  .bar2 { width: 180px; height: 2px; background: var(--faint); overflow: hidden; border-radius: 2px; }
+  .bar2 i { display: block; height: 100%; width: 40%; background: var(--gold); animation: slide 1.1s ease-in-out infinite; }
+  @keyframes slide { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
+  .foot { position: fixed; left: 22px; bottom: 14px; font-size: 11px; color: var(--muted); max-width: 300px; pointer-events: none; }
+  .foot code { font-family: var(--mono); }
+
+  @media (max-width: 900px) {
+    .ui { padding: 12px; gap: 10px; }
+    .top { flex-wrap: wrap; }
+    .brand span { display: none; }
+    .cases { order: 3; width: 100%; margin: 0; }
+    .tools { margin-left: auto; }
+    .agent .belief { font-size: 22px; }
+    .vs { min-width: 70px; padding: 0 6px; }
+    .verdict { grid-template-columns: 1fr; }
+    .ring, .orb { display: none; }
+    .foot { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .verdict::before { animation: none; }
+    .question .w { transition: none; }
   }
 </style>
+<script type="importmap">
+{ "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+} }
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 </head>
 <body>
-<header>
-  <div class="brand"><h1>Ukweli</h1><span id="tagline"></span></div>
-  <div class="spacer"></div>
-  <div class="toggle" role="group" aria-label="Language">
-    <button data-lang="en" class="on">English</button>
-    <button data-lang="sw">Kiswahili</button>
+<canvas id="stage" aria-hidden="true"></canvas>
+<div class="vignette"></div>
+
+<div class="ui">
+  <div class="top">
+    <div class="brand"><b>UKWELI</b><span id="tagline"></span></div>
+    <nav class="cases glass" id="cases" aria-label="Cases"></nav>
+    <div class="tools">
+      <div class="seg glass" role="group" aria-label="Language">
+        <button data-lang="en" class="on">EN</button><button data-lang="sw">SW</button>
+      </div>
+      <button class="ghost" id="logBtn"></button>
+      <button class="ghost" id="forget"></button>
+    </div>
   </div>
-  <button class="link" id="forget"></button>
-</header>
 
-<div class="layout">
-  <aside>
-    <p class="summary" id="summary"></p>
-    <div class="cases" id="cases"></div>
-  </aside>
+  <div class="head">
+    <h1 class="question" id="question"></h1>
+    <div class="versus">
+      <div class="agent ledger glass" id="hud-ledger">
+        <div class="name">📒 <span data-t="ledger"></span></div>
+        <div class="sees" data-t="ledgerSees"></div>
+        <div class="belief" id="belief-ledger">—</div>
+        <div class="pips" id="pips-ledger"></div>
+      </div>
+      <div class="vs glass"><div><b>VS</b><small id="status"></small></div></div>
+      <div class="agent mpesa glass" id="hud-mpesa">
+        <div class="name"><span data-t="mpesa"></span> 📱</div>
+        <div class="sees" data-t="mpesaSees"></div>
+        <div class="belief" id="belief-mpesa">—</div>
+        <div class="pips" id="pips-mpesa"></div>
+      </div>
+    </div>
+  </div>
 
-  <main>
-    <h2 class="question" id="question"></h2>
-    <div class="agents">
-      <div class="agent ledger"><div class="who">📒 <span id="ledger-name"></span></div><div class="sees" id="ledger-sees"></div><div class="belief" id="ledger-belief"></div></div>
-      <div class="agent mpesa"><div class="who">📱 <span id="mpesa-name"></span></div><div class="sees" id="mpesa-sees"></div><div class="belief" id="mpesa-belief"></div></div>
+  <div></div>
+
+  <div class="bottom">
+    <div id="banner"></div>
+    <div id="verdict"></div>
+    <div class="caption glass" id="caption" aria-live="polite">
+      <div class="who" id="cap-who"></div>
+      <div class="text" id="cap-text"></div>
+      <div class="rule" id="cap-rule"></div>
     </div>
     <div class="controls">
-      <button class="btn" id="play"></button>
-      <button class="btn ghost" id="skip"></button>
-      <label><span id="speed-label"></span>
-        <select id="speed"><option value="1800">1×</option><option value="1000" selected>2×</option><option value="450">4×</option></select>
+      <button class="play" id="play"></button>
+      <button class="ghost" id="skip"></button>
+      <label><span data-t="speed"></span>
+        <select id="speed"><option value="0.7">0.7×</option><option value="1" selected>1×</option><option value="1.6">1.6×</option><option value="2.5">2.5×</option></select>
       </label>
     </div>
-    <div class="debate" id="debate"></div>
-    <div id="verdict"></div>
-  </main>
+  </div>
 </div>
 
-<footer id="footer"></footer>
+<aside class="log glass" id="log"><h4 data-t="log"></h4><ol id="log-list"></ol></aside>
+<div class="foot" id="foot"></div>
 
-<script>
-const T = {
-  en: {
-    tagline: "Two agents. One truth.",
-    forget: "Forget owner's answers",
-    summary: (n, s, a) => `${n} disagreements found · ${s} settled by the agents · ${a} for the owner`,
-    ledger: "Ledger agent", ledgerSees: "Knows only the shop book",
-    mpesa: "M-Pesa agent", mpesaSees: "Knows only the M-Pesa statement",
-    play: "▶ Play debate", replay: "↻ Replay", skip: "Show all", speed: "Speed",
-    believes: "believes", rebuts: "Rebuts", evidence: "New evidence",
-    concedes: (who, amt) => `${who} concedes and now believes ${amt}`,
-    pass: who => `${who} has nothing to add`,
-    settledChip: amt => `Settled: ${amt}`, askChip: "Ask the owner",
-    agreed: amt => `Agreed: ${amt}`, confidence: "Confidence", whatToDo: "What the owner should do",
-    beliefChanged: "Belief change, saved in MeTTa",
-    cantAgree: "The agents can't agree", askOwner: "One question for the owner",
-    yes: "Yes", no: "No",
-    learnedNote: "Your answer is saved in memory/learned.metta. The agents will use it in every debate from now on.",
-    learnedBanner: "The owner answered. Debating again with what they learned…",
-    empty: "Press play to watch the agents debate.",
-    loading: "The agents are reading the shop book and the M-Pesa statement…",
-    footer: "All reasoning comes from MeTTa rules in <code>metta/ukweli.metta</code>. Sample data is made up.",
-    swNote: "",
-  },
-  sw: {
-    tagline: "Mawakala wawili. Ukweli mmoja.",
-    forget: "Futa majibu ya mwenye duka",
-    summary: (n, s, a) => `Tofauti ${n} · ${s} zimetatuliwa na mawakala · ${a} kwa mwenye duka`,
-    ledger: "Wakala wa Kitabu", ledgerSees: "Anajua kitabu cha duka tu",
-    mpesa: "Wakala wa M-Pesa", mpesaSees: "Anajua taarifa ya M-Pesa tu",
-    play: "▶ Anza mjadala", replay: "↻ Rudia", skip: "Onyesha yote", speed: "Kasi",
-    believes: "anaamini", rebuts: "Anapinga", evidence: "Ushahidi mpya",
-    concedes: (who, amt) => `${who} anakubali; sasa anaamini ${amt}`,
-    pass: who => `${who} hana la kuongeza`,
-    settledChip: amt => `Imetatuliwa: ${amt}`, askChip: "Muulize mwenye duka",
-    agreed: amt => `Wamekubaliana: ${amt}`, confidence: "Uhakika", whatToDo: "Kazi kwa mwenye duka",
-    beliefChanged: "Imani iliyobadilika, imehifadhiwa kwenye MeTTa",
-    cantAgree: "Mawakala hawakubaliani", askOwner: "Swali moja kwa mwenye duka",
-    yes: "Ndiyo", no: "Hapana",
-    learnedNote: "Jibu lako limehifadhiwa kwenye memory/learned.metta. Mawakala watalitumia kila mjadala kuanzia sasa.",
-    learnedBanner: "Mwenye duka amejibu. Wanajadili tena kwa walichojifunza…",
-    empty: "Bonyeza kuanza kuona mawakala wakijadiliana.",
-    loading: "Mawakala wanasoma kitabu cha duka na taarifa ya M-Pesa…",
-    footer: "Hoja zote zinatoka kwenye kanuni za MeTTa katika <code>metta/ukweli.metta</code>. Data ni ya mfano.",
-    swNote: "Mjadala wa mawakala uko kwa Kiingereza; maamuzi na maswali kwa mwenye duka yako kwa Kiswahili.",
-  },
-};
+<div class="loading" id="loading"><p><b>UKWELI</b><span id="loading-text">The agents are reading the shop book and the M-Pesa statement…</span><span class="bar2"><i></i></span></p></div>
 
-let lang = "en", data = null, current = 0, shown = 0, timer = null, banner = "";
-const $ = id => document.getElementById(id);
-const t = () => T[lang];
-const kes = s => String(s).replace(/KES (\d{4,})/g, (_, n) => "KES " + Number(n).toLocaleString("en-US"));
-const money = n => "KES " + Number(n).toLocaleString("en-US");
-const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-const agentName = a => a === "ledger" ? t().ledger : t().mpesa;
-const debate = () => data.debates[current];
-
-async function api(path, body) {
-  const res = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : undefined);
-  return res.json();
-}
-
-function renderStatic() {
-  $("tagline").textContent = t().tagline;
-  $("forget").textContent = t().forget;
-  $("ledger-name").textContent = t().ledger; $("ledger-sees").textContent = t().ledgerSees;
-  $("mpesa-name").textContent = t().mpesa; $("mpesa-sees").textContent = t().mpesaSees;
-  $("skip").textContent = t().skip; $("speed-label").textContent = t().speed;
-  $("footer").innerHTML = t().footer + (t().swNote ? "<br>" + t().swNote : "");
-  document.querySelectorAll(".toggle button").forEach(b => b.classList.toggle("on", b.dataset.lang === lang));
-  document.documentElement.lang = lang;
-}
-
-function renderCases() {
-  const ds = data.debates;
-  const settled = ds.filter(d => d.outcome === "settled").length;
-  $("summary").textContent = t().summary(ds.length, settled, ds.length - settled);
-  $("cases").innerHTML = ds.map((d, i) => `
-    <button class="case ${i === current ? "on" : ""}" data-i="${i}">
-      <span class="n">#${i + 1}</span>
-      <span class="q">${esc(kes(lang === "sw" ? d.question_sw : d.question))}</span>
-      ${d.outcome === "settled"
-        ? `<span class="chip settled">${t().settledChip(money(d.agreed))}</span>`
-        : `<span class="chip escalated">${t().askChip}</span>`}
-    </button>`).join("");
-  document.querySelectorAll(".case").forEach(b => b.onclick = () => select(Number(b.dataset.i)));
-}
-
-function beliefs() {
-  const d = debate();
-  const b = { ledger: money(d.claims.ledger), mpesa: money(d.claims.mpesa) };
-  const conceded = d.moves.slice(0, shown).find(m => m.act === "concede");
-  if (conceded) b[conceded.agent] = `<s>${money(d.claims[conceded.agent])}</s>${money(conceded.claim)}`;
-  $("ledger-belief").innerHTML = b.ledger;
-  $("mpesa-belief").innerHTML = b.mpesa;
-}
-
-function moveHtml(m) {
-  const who = agentName(m.agent);
-  if (m.act === "concede") return `<div class="event concede">✓ ${esc(t().concedes(who, money(m.claim)))}</div>`;
-  if (m.act === "pass") return `<div class="event">${esc(t().pass(who))}</div>`;
-  let html = "";
-  if (m.says) {
-    const tag = m.claim != null ? `${who} · ${t().believes} ${money(m.claim)}` : (m.act === "present" ? `${who} · ${t().evidence}` : who);
-    html += `<div class="msg ${m.agent}"><div class="tag">${esc(tag)}</div>${esc(kes(m.says))}</div>`;
-  }
-  if (m.act === "rebut") {
-    html += `<div class="msg ${m.agent} rebut"><div class="tag">${esc(who)} · ${t().rebuts}</div>${esc(m.why)}
-      <div><span class="rule">${esc(m.kind)} beats ${esc(m.target)}</span></div></div>`;
-  }
-  return html;
-}
-
-function renderDebate() {
-  const d = debate();
-  $("question").textContent = kes(lang === "sw" ? d.question_sw : d.question);
-  const box = $("debate");
-  const moves = d.moves.slice(0, shown).map(moveHtml).join("");
-  const typing = timer && shown < d.moves.length
-    ? `<div class="typing ${d.moves[shown].agent}">${esc(agentName(d.moves[shown].agent))} …</div>` : "";
-  const top = banner ? `<div class="learned">${esc(banner)}</div>` : "";
-  box.innerHTML = top + (moves || typing ? moves + typing : `<div class="empty">${t().empty}</div>`);
-  box.scrollTop = box.scrollHeight;
-  beliefs();
-  $("play").textContent = shown >= d.moves.length ? t().replay : t().play;
-  $("play").disabled = !!timer;
-  $("skip").disabled = shown >= d.moves.length;
-  renderVerdict();
-}
-
-function renderVerdict() {
-  const d = debate(), v = $("verdict");
-  if (shown < d.moves.length) { v.innerHTML = ""; return; }
-  if (d.outcome === "settled") {
-    const b = d.belief_change;
-    v.innerHTML = `<div class="verdict">
-      <h3>${t().agreed(money(d.agreed))}</h3>
-      <div class="label">${t().confidence} ${Math.round(d.confidence * 100)}%</div>
-      <div class="meter"><i style="width:${d.confidence * 100}%"></i></div>
-      <div class="label">${t().whatToDo}</div>
-      <p class="action">${esc(kes(lang === "sw" ? d.action_sw : d.action))}</p>
-      <div class="label">${t().beliefChanged}</div>
-      <div class="diff">(belief ${b.agent} ${esc(d.case)} <span class="old">(kes ${b.old})</span> → <span class="new">(kes ${b.new})</span>)</div>
-    </div>`;
-  } else {
-    v.innerHTML = `<div class="verdict ask">
-      <h3>${t().cantAgree}</h3>
-      <div class="label">${t().askOwner}</div>
-      <p class="action">${esc(kes(lang === "sw" ? d.owner_question_sw : d.owner_question))}</p>
-      ${d.ask && d.ask.customer ? `<div class="answers">
-        <button class="btn" id="yes">${t().yes}</button>
-        <button class="btn ghost" id="no">${t().no}</button>
-      </div>` : ""}
-    </div>`;
-    if (d.ask && d.ask.customer) {
-      $("yes").onclick = () => answer(true);
-      $("no").onclick = () => answer(false);
-    }
-  }
-}
-
-function play() {
-  stop();
-  shown = 0;
-  const step = () => {
-    renderDebate();
-    if (shown >= debate().moves.length) { stop(); renderDebate(); return; }
-    timer = setTimeout(() => { shown++; step(); }, Number($("speed").value));
-  };
-  timer = -1;
-  step();
-}
-
-function stop() { if (timer && timer !== -1) clearTimeout(timer); timer = null; }
-
-function select(i) {
-  stop(); banner = ""; current = i; shown = 0;
-  renderCases(); renderDebate();
-}
-
-async function answer(yes) {
-  const ask = debate().ask, kase = debate().case;
-  data = await api("/api/answer", { customer: ask.customer, phone: ask.phone, answer: yes });
-  current = Math.max(0, data.debates.findIndex(d => d.case === kase));
-  renderCases();
-  banner = `${t().learnedBanner} ${t().learnedNote}`;
-  play();
-}
-
-$("play").onclick = play;
-$("skip").onclick = () => { stop(); shown = debate().moves.length; renderDebate(); };
-$("forget").onclick = async () => { data = await api("/api/forget", {}); select(current); };
-document.querySelectorAll(".toggle button").forEach(b => b.onclick = () => {
-  lang = b.dataset.lang; renderStatic(); renderCases(); renderDebate();
-});
-
-(async () => {
-  renderStatic();
-  $("play").textContent = t().play;
-  $("play").disabled = $("skip").disabled = true;
-  $("debate").innerHTML = `<div class="empty">${t().loading}</div>`;
-  data = await api("/api/debates");
-  select(0);
-})();
-</script>
+<script type="module" src="app.js"></script>
 </body>
 </html>

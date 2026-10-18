@@ -80,7 +80,14 @@ pip install -r requirements.txt
 python server.py
 ```
 
-Then open http://localhost:8000. Pick a case, press **Play debate**, and switch between English and Kiswahili at the top. On case 6, answer the owner's question and watch the agents debate again with what they learned. **Forget owner's answers** resets the demo.
+Then open http://localhost:8000. The page is a 3D stage, **Mizani ya Ukweli** (the scale of truth):
+
+- The Ledger agent is a floating book and the M-Pesa agent is a floating phone. Each shows its current belief.
+- Every piece of evidence flies onto its agent's pan as a tablet. The scale tilts toward the side with more evidence still standing.
+- A rebuttal fires a beam that shatters the other side's tablet. If that rebuttal is beaten in turn, the tablet re-forms.
+- When an agent concedes, its belief counts to the new value, the scale settles and a gold shockwave goes out. If the agents can't agree, the scale keeps wobbling and the owner's lantern comes down with one question.
+
+Pick a case at the top, press **Play debate**, and switch between EN and SW. On case 06, answer the owner's question and watch the agents debate again with what they learned. **Log** shows every step; **Reset owner's answers** resets the demo. The 3D libraries (three.js, GSAP) load from a CDN, so the page needs internet. Without WebGL the page still works without the 3D stage.
 
 **Terminal:**
 
