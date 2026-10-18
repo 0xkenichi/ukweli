@@ -152,7 +152,7 @@ function logMove(side, title, text, rule = "") {
   li.className = side;
   li.innerHTML = `<b>${esc(title)}</b>${esc(kes(text))}${rule ? `<span class="rule">${rule}</span>` : ""}`;
   $("log-list").appendChild(li);
-  li.scrollIntoView({ block: "nearest" });
+  $("log").scrollTop = $("log").scrollHeight;
 }
 
 // ---------- Question reveal ----------
@@ -395,7 +395,7 @@ function select(i) {
 async function answer(yes) {
   const d = debate();
   const kase = d.case;
-  state.data = await api("/api/answer", { customer: d.ask.customer, phone: d.ask.phone, answer: yes });
+  setData(await api("/api/answer", { customer: d.ask.customer, phone: d.ask.phone, answer: yes }));
   state.current = Math.max(0, state.data.debates.findIndex(x => x.case === kase));
   renderCases();
   stage?.hideLantern();
@@ -422,7 +422,7 @@ function renderStatic() {
 $("play").onclick = play;
 $("skip").onclick = skip;
 $("logBtn").onclick = () => $("log").classList.toggle("open");
-$("forget").onclick = async () => { state.data = await api("/api/forget", {}); select(state.current); };
+$("forget").onclick = async () => { setData(await api("/api/forget", {})); select(Math.min(state.current, state.data.debates.length - 1)); };
 document.querySelectorAll(".seg button").forEach(b => (b.onclick = () => {
   state.lang = b.dataset.lang;
   renderStatic();
@@ -430,7 +430,37 @@ document.querySelectorAll(".seg button").forEach(b => (b.onclick = () => {
   showQuestion();
   if (!state.playing && !state.done) finishCaption("gold", "Ukweli", t().hint);
   if (state.done) showVerdict(debate());
+  window.dispatchEvent(new CustomEvent("ukweli:lang", { detail: state.lang }));
 }));
+
+// ---------- Hooks for the owner's phone ----------
+
+function setData(data) {
+  state.data = data;
+  if (state.current >= data.debates.length) state.current = 0;
+  renderCases();
+  window.dispatchEvent(new CustomEvent("ukweli:data", { detail: data }));
+}
+
+window.ukweli = {
+  lang: () => state.lang,
+  data: () => state.data,
+  setData(data) {
+    const kase = state.data && debate() ? debate().case : null;
+    setData(data);
+    const i = data.debates.findIndex(d => d.case === kase);
+    if (i >= 0) state.current = i;
+    else select(0);
+    renderCases();
+  },
+  play(kase) {
+    const i = state.data.debates.findIndex(d => d.case === kase);
+    if (i < 0) return;
+    document.body.classList.add("show-brain");
+    select(i);
+    play();
+  },
+};
 
 (async () => {
   renderStatic();
@@ -446,7 +476,7 @@ document.querySelectorAll(".seg button").forEach(b => (b.onclick = () => {
     console.warn("3D stage unavailable, running without it.", e);
     stage = null;
   }
-  state.data = await api("/api/debates");
+  setData(await api("/api/debates"));
   select(0);
   $("loading").classList.add("gone");
 })();

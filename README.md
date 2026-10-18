@@ -10,6 +10,26 @@ Ukweli gives each record its own agent. When they disagree, the two agents debat
 **Track:** Track 02 Builders: Omega AI Agents
 **Challenge:** 4. Two Agents, One Truth
 
+## Logging money is easy: photo, voice or text, in 5 languages
+
+Owners don't fill in forms. In the Ukweli app they chat:
+
+- **Send a photo** of the book page. Gemini transcribes the handwriting.
+- **Send a voice note.** Gemini transcribes it; without a key, the browser's own speech-to-text is used.
+- **Type,** or **forward the M-Pesa SMS** straight from their phone.
+- **In English, Kiswahili, Sheng, Gĩkũyũ or Dholuo.** For example "Mama Faith amelipa mia nane kwa M-Pesa jana", "Kevin niarihire magana mana", "Akinyi ochulo mia abich".
+
+**Gemini only writes down what it sees or hears. MeTTa does all the understanding.** [`metta/reader.metta`](metta/reader.metta) holds the word lists for all 5 languages and the rules that work out:
+
+- the language;
+- the amount: *mia nane* is hundred × eight, while English *eight hundred* puts the number first;
+- paid or owes, M-Pesa or cash, and which day;
+- which customer, matched against the contact list.
+
+The app shows the owner how every word was read (for example `mia → ×100`, `nane → 8`, `amelipa → paid`). The owner confirms, and the agents immediately check the new entry against the M-Pesa statement. That either **settles** an open issue (forwarding Brian's SMS settles the "payment missing from the book" case) or **opens a new one** for the agents to debate (Kevin's KES 1,500 never reached the till).
+
+This is neural-symbolic AI in practice: neural models for perception, symbolic MeTTa rules for every judgement, so every decision can be explained and overruled.
+
 ## What it does
 
 ```text
@@ -74,13 +94,21 @@ pip install -r requirements.txt
 
 ## Run
 
-**Live debate page** (best for the demo):
+**The app** (best for the demo):
 
 ```bash
 python server.py
 ```
 
-Then open http://localhost:8000. The page is a 3D stage, **Mizani ya Ukweli** (the scale of truth):
+Then open http://localhost:8000. On the left is the **owner's phone app**: a chat for logging money, plus an **Issues** tab. On the right is the **agents' brain**. On a phone, the app fills the screen and **Watch the agents** switches to the brain.
+
+To turn on photos and voice notes, get a free key at https://aistudio.google.com/apikey and create a `.env` file (see `.env.example`):
+
+```bash
+echo "GEMINI_API_KEY=your-key-here" > .env
+```
+
+The agents' brain is a 3D stage, **Mizani ya Ukweli** (the scale of truth):
 
 - The Ledger agent is a floating book and the M-Pesa agent is a floating phone. Each shows its current belief.
 - Every piece of evidence flies onto its agent's pan as a tablet. The scale tilts toward the side with more evidence still standing.
@@ -119,6 +147,8 @@ All data in `data/` is made up. See [`data/README.md`](data/README.md).
 - [x] Web page that shows the debate live, for the demo video
 - [x] Questions and owner actions in Swahili (needs a check by a native speaker)
 - [x] Learning from the owner: answers are saved as MeTTa facts and used in later debates
+- [x] Logging by photo, voice note, text or forwarded M-Pesa SMS, in English, Kiswahili, Sheng, Gĩkũyũ and Dholuo
+- [ ] Check the word lists with native speakers, especially Sheng, Gĩkũyũ and Dholuo
 - [ ] The agents' own lines in Swahili too
 - [ ] Run the agents on Omega's agent infrastructure (waiting on the Omega resources on BASIX.MARKET)
 - [ ] Import real M-Pesa statement exports (PDF/CSV)
@@ -126,12 +156,13 @@ All data in `data/` is made up. See [`data/README.md`](data/README.md).
 ## Demo script (3 minutes)
 
 1. **The problem (20 s).** A duka owner has a sales book and an M-Pesa statement that don't agree.
-2. **Case 1 (40 s).** Play it. The customer showed an SMS, but the M-Pesa agent shows the reversal. The Ledger agent concedes, and its belief changes from KES 500 to KES 0.
-3. **Case 4 (20 s).** This time the M-Pesa agent concedes: the money came from the owner's own phone.
-4. **Case 6 (50 s).** The agents can't agree and ask the owner one question. Click **Yes**. They debate again, and this time settle it on their own.
-5. **Kiswahili (15 s).** Switch the language. The owner's instructions are in Swahili.
-6. **Under the hood (25 s).** Show `metta/ukweli.metta`, the `defeats` rules and `audit/AUDIT.md`.
-7. **What's next (10 s).** Real M-Pesa statement imports, and running on Omega.
+2. **Logging is a chat (40 s).** Forward Brian's M-Pesa SMS: the chips show how each word was read, and saving it settles an open issue. Send "Kevin amelipa elfu moja mia tano kwa M-Pesa": a new issue opens. Tap **Watch the agents debate**.
+3. **Case 1 (30 s).** Play it. The customer showed an SMS, but the M-Pesa agent shows the reversal. The Ledger agent concedes, and its belief changes from KES 500 to KES 0.
+4. **Case 4 (15 s).** This time the M-Pesa agent concedes: the money came from the owner's own phone.
+5. **Case 6 (35 s).** The agents can't agree and ask the owner one question. Click **Yes**. They debate again, and this time settle it on their own.
+6. **Kiswahili (10 s).** Switch the language. The owner's instructions are in Swahili.
+7. **Under the hood (20 s).** Show `metta/reader.metta` (the 5-language word lists), the `defeats` rules in `metta/ukweli.metta`, and `audit/AUDIT.md`.
+8. **What's next (10 s).** Real M-Pesa statement imports, and running on Omega.
 
 ## Team
 

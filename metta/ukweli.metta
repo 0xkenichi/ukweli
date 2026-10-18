@@ -25,6 +25,9 @@
 (= (is-reversed $code)
    (not (== (collapse (match &mpesa (mpesa-reversal $r $d $t $n $ph $a $code) $r)) ())))
 
+(= (has-statement-payment $date $amount)
+   (not (== (collapse (match &mpesa (mpesa-received $code $date $t $n $ph $amount) $code)) ())))
+
 (= (has-uncoded-entry $date $amount)
    (not (== (collapse (match &ledger (ledger-entry $i $date $c $amount mpesa nocode $p) $i)) ())))
 
@@ -67,11 +70,17 @@
              (if (has-uncoded-entry $d $a) (empty) (Case unrecorded $code))))))
 
 ; The book says paid by M-Pesa with no code, and an unclaimed payment of
-; the same amount arrived that day from someone else.
+; the same amount arrived that day from someone else's number. (From the
+; customer's own number it simply matches, so there's nothing to debate.)
 (= (detect)
    (match &ledger (ledger-entry $id $d $c $a mpesa nocode $p)
      (match &mpesa (mpesa-received $code $d $t $n $ph $a)
-       (if (code-in-book $code) (empty) (Case possible-match $id)))))
+       (if (or (code-in-book $code) (== $ph (phone-of $c))) (empty) (Case possible-match $id)))))
+
+; The book says paid by M-Pesa, but nothing of that amount arrived that day.
+(= (detect)
+   (match &ledger (ledger-entry $id $d $c $a mpesa nocode $p)
+     (if (has-statement-payment $d $a) (empty) (Case no-trace $id))))
 
 ; ---------- The question each case settles ----------
 
@@ -103,7 +112,17 @@
      (let $n (name-of $c)
        (format-args "Did {}'s KES {} on {} (book entry L-{}) arrive?" ($n $a $d $id)))))
 
+(= (question (Case no-trace $id))
+   (match &ledger (ledger-entry $id $d $c $a $m $code $p)
+     (let $n (name-of $c)
+       (format-args "Did {}'s KES {} on {} (book entry L-{}) arrive?" ($n $a $d $id)))))
+
 ; The same questions in Swahili, for the owner.
+
+(= (question-sw (Case no-trace $id))
+   (match &ledger (ledger-entry $id $d $c $a $m $code $p)
+     (let $n (name-of $c)
+       (format-args "Je, KES {} za {} tarehe {} (L-{}) zilifika?" ($a $n $d $id)))))
 
 (= (question-sw (Case reversed $id))
    (match &ledger (ledger-entry $id $d $c $a $m $code $p)
@@ -164,7 +183,22 @@
    (match &ledger (ledger-entry $id $d $c $a $m $code $p) (kes $a)))
 (= (claim mpesa (Case possible-match $id)) (kes 0))
 
+(= (claim ledger (Case no-trace $id))
+   (match &ledger (ledger-entry $id $d $c $a $m $code $p) (kes $a)))
+(= (claim mpesa (Case no-trace $id)) (kes 0))
+
 ; ---------- Evidence each agent can bring ----------
+
+; Entry with nothing matching in the statement
+(= (args ledger (Case no-trace $id))
+   (match &ledger (ledger-entry $id $d $c $a $m $code $p)
+     (let $n (name-of $c)
+       (Arg 1 book-entry
+         (format-args "My book entry L-{} says {} paid KES {} by M-Pesa on {}. No code was written down." ($id $n $a $d))))))
+(= (args mpesa (Case no-trace $id))
+   (match &ledger (ledger-entry $id $d $c $a $m $code $p)
+     (Arg 1 no-payment-at-all
+       (format-args "My statement has no payment of KES {} from anyone on {}." ($a $d)))))
 ; (Arg <order> <kind> <what the agent says>). Lower order is played first.
 
 ; Reversed payment
@@ -301,6 +335,8 @@
   "There's no code in the book to check, and the customer's own number didn't pay that day.")
 (defeats same-day-payment no-payment-from-number
   "A payment of exactly this amount arrived the same day and no one else claims it.")
+(defeats no-payment-at-all book-entry
+  "Nothing of that amount reached the till that day, from any number.")
 (defeats owner-confirmed no-payment-from-number
   "The owner confirmed the other number belongs to the customer, so the payment did arrive.")
 (defeats owner-denied same-day-payment
@@ -356,6 +392,13 @@
      (Settled 0.95
        (format-args "Don't count {} as sales. Record the KES {} as the owner's float top-up." ($code $a))
        (format-args "Usihesabu {} kama mauzo. Andika KES {} kama pesa ya mwenye duka ya kuongeza float." ($code $a)))))
+
+(= (settle (Case no-trace $id))
+   (match &ledger (ledger-entry $id $d $c $a $m $code $p)
+     (let $n (name-of $c)
+       (Settled 0.9
+         (format-args "No M-Pesa payment of KES {} arrived on {}. Ask {} for the M-Pesa message, or check whether it was paid in cash." ($a $d $n))
+         (format-args "Hakuna malipo ya M-Pesa ya KES {} yaliyofika tarehe {}. Muombe {} ujumbe wa M-Pesa, au angalia kama alilipa taslimu." ($a $d $n))))))
 
 ; Settled only after the owner has answered the agents' question.
 (= (settle (Case possible-match $id))
