@@ -3,6 +3,7 @@
     "case": "(Case reversed 104)",
     "kind": "reversed",
     "question": "How much did John Kamau really pay on 2026-10-14 (book entry L-104)?",
+    "question_sw": "John Kamau alilipa kiasi gani hasa tarehe 2026-10-14 (L-104)?",
     "claims": {
       "ledger": 500,
       "mpesa": 0
@@ -105,7 +106,10 @@
     "conceded_by": "ledger",
     "confidence": 0.95,
     "action": "Mark L-104 as UNPAID. Ask John Kamau to pay KES 500 again: the payment was reversed.",
+    "action_sw": "Weka L-104 kama HAIJALIPWA. Muombe John Kamau alipe KES 500 tena: malipo yalirudishwa.",
     "owner_question": "",
+    "owner_question_sw": "",
+    "ask": {},
     "belief_change": {
       "agent": "ledger",
       "old": 500,
@@ -117,6 +121,7 @@
     "case": "(Case amount-mismatch 107)",
     "kind": "amount-mismatch",
     "question": "How much did Akinyi Odhiambo really pay on 2026-10-15 (book entry L-107)?",
+    "question_sw": "Akinyi Odhiambo alilipa kiasi gani hasa tarehe 2026-10-15 (L-107)?",
     "claims": {
       "ledger": 1500,
       "mpesa": 1050
@@ -184,7 +189,10 @@
     "conceded_by": "ledger",
     "confidence": 0.85,
     "action": "Correct L-107 to KES 1050. The KES 450 gap divides by 9, the classic sign of swapped digits. Check with Akinyi Odhiambo whether KES 1500 was owed; if so, KES 450 is still due.",
+    "action_sw": "Sahihisha L-107 iwe KES 1050. Tofauti ya KES 450 inagawanyika kwa 9, dalili ya tarakimu zilizobadilishana. Muulize Akinyi Odhiambo kama alikuwa anadaiwa KES 1500; kama ndiyo, bado anadaiwa KES 450.",
     "owner_question": "",
+    "owner_question_sw": "",
+    "ask": {},
     "belief_change": {
       "agent": "ledger",
       "old": 1500,
@@ -196,6 +204,7 @@
     "case": "(Case duplicate 111)",
     "kind": "duplicate",
     "question": "How much did Peter Otieno pay with M-Pesa code QK7D3FT9WS?",
+    "question_sw": "Peter Otieno alilipa kiasi gani kwa namba ya muamala QK7D3FT9WS?",
     "claims": {
       "ledger": 600,
       "mpesa": 300
@@ -263,7 +272,10 @@
     "conceded_by": "ledger",
     "confidence": 0.97,
     "action": "Delete L-111. It repeats code QK7D3FT9WS, which was already recorded.",
+    "action_sw": "Futa L-111. Inarudia namba ya muamala QK7D3FT9WS iliyokwisha andikwa.",
     "owner_question": "",
+    "owner_question_sw": "",
+    "ask": {},
     "belief_change": {
       "agent": "ledger",
       "old": 600,
@@ -275,6 +287,7 @@
     "case": "(Case owner-topup QL6S3DR1XW)",
     "kind": "owner-topup",
     "question": "Is the KES 2000 from WANJIKU K on 2026-10-16 (QL6S3DR1XW) a sale?",
+    "question_sw": "Je, KES 2000 kutoka kwa WANJIKU K tarehe 2026-10-16 (QL6S3DR1XW) ni mauzo?",
     "claims": {
       "ledger": 0,
       "mpesa": 2000
@@ -350,7 +363,10 @@
     "conceded_by": "mpesa",
     "confidence": 0.95,
     "action": "Don't count QL6S3DR1XW as sales. Record the KES 2000 as the owner's float top-up.",
+    "action_sw": "Usihesabu QL6S3DR1XW kama mauzo. Andika KES 2000 kama pesa ya mwenye duka ya kuongeza float.",
     "owner_question": "",
+    "owner_question_sw": "",
+    "ask": {},
     "belief_change": {
       "agent": "mpesa",
       "old": 2000,
@@ -362,6 +378,7 @@
     "case": "(Case unrecorded QKA5Y7GJ4T)",
     "kind": "unrecorded",
     "question": "Is the KES 1200 from BRIAN MWANGI on 2026-10-15 (QKA5Y7GJ4T) shop income?",
+    "question_sw": "Je, KES 1200 kutoka kwa BRIAN MWANGI tarehe 2026-10-15 (QKA5Y7GJ4T) ni mapato ya duka?",
     "claims": {
       "ledger": 0,
       "mpesa": 1200
@@ -429,7 +446,10 @@
     "conceded_by": "ledger",
     "confidence": 0.9,
     "action": "Add a book entry for QKA5Y7GJ4T, and close Brian Mwangi's debt D-03 (KES 1200, from 2026-10-03).",
+    "action_sw": "Andika QKA5Y7GJ4T kwenye kitabu, na ufunge deni la Brian Mwangi D-03 (KES 1200, la tarehe 2026-10-03).",
     "owner_question": "",
+    "owner_question_sw": "",
+    "ask": {},
     "belief_change": {
       "agent": "ledger",
       "old": 0,
@@ -441,6 +461,7 @@
     "case": "(Case possible-match 115)",
     "kind": "possible-match",
     "question": "Did Mama Faith's KES 800 on 2026-10-16 (book entry L-115) arrive?",
+    "question_sw": "Je, KES 800 za Mama Faith tarehe 2026-10-16 (L-115) zilifika?",
     "claims": {
       "ledger": 800,
       "mpesa": 0
@@ -463,7 +484,7 @@
               "agent": "ledger",
               "kind": "same-day-payment",
               "says": "But your statement has KES 800 that day that nobody in my book claims: QL4V2NB8HK from GRACE MUTHONI (0711***902) at 18:20. Customers often pay from a relative's phone.",
-              "order": 2,
+              "order": 3,
               "played": true,
               "beaten_by": null,
               "why_beaten": ""
@@ -476,7 +497,7 @@
           "agent": "ledger",
           "kind": "same-day-payment",
           "says": "But your statement has KES 800 that day that nobody in my book claims: QL4V2NB8HK from GRACE MUTHONI (0711***902) at 18:20. Customers often pay from a relative's phone.",
-          "order": 2,
+          "order": 3,
           "played": true,
           "beaten_by": null,
           "why_beaten": ""
@@ -493,7 +514,7 @@
             "agent": "ledger",
             "kind": "same-day-payment",
             "says": "But your statement has KES 800 that day that nobody in my book claims: QL4V2NB8HK from GRACE MUTHONI (0711***902) at 18:20. Customers often pay from a relative's phone.",
-            "order": 2,
+            "order": 3,
             "played": true,
             "beaten_by": null,
             "why_beaten": ""
@@ -564,7 +585,13 @@
     "conceded_by": null,
     "confidence": null,
     "action": "",
+    "action_sw": "",
     "owner_question": "Ask Mama Faith: did you pay KES 800 on 2026-10-16 from 0711***902 (GRACE MUTHONI)?",
+    "owner_question_sw": "Muulize Mama Faith: ulilipa KES 800 tarehe 2026-10-16 kutoka 0711***902 (GRACE MUTHONI)?",
+    "ask": {
+      "customer": "faith",
+      "phone": "0711***902"
+    },
     "belief_change": {}
   }
 ]

@@ -1,6 +1,6 @@
 # Ukweli audit trail
 
-Generated 2026-10-18 16:34. Every step below comes from a rule in `metta/ukweli.metta`. The owner can overrule any decision.
+Generated 2026-10-18 16:55. Every step below comes from a rule in `metta/ukweli.metta`. The owner can overrule any decision.
 
 | # | Question | Ledger | M-Pesa | Result | Confidence |
 |---|---|---|---|---|---|
@@ -26,6 +26,8 @@ Rule match: `(Case reversed 104)`
 
 **What to do:** Mark L-104 as UNPAID. Ask John Kamau to pay KES 500 again: the payment was reversed.
 
+**Kazi ya kufanya:** Weka L-104 kama HAIJALIPWA. Muombe John Kamau alipe KES 500 tena: malipo yalirudishwa.
+
 **Belief change:** Ledger agent went from KES 500 to KES 0 because: The SMS was real, but it was sent before the reversal. An SMS can't show a reversal that happened later.
 
 **To overrule:** if you know better, fix the record and run Ukweli again.
@@ -42,6 +44,8 @@ Rule match: `(Case amount-mismatch 107)`
 **Agreed:** KES 1,050 (confidence 85%)
 
 **What to do:** Correct L-107 to KES 1,050. The KES 450 gap divides by 9, the classic sign of swapped digits. Check with Akinyi Odhiambo whether KES 1,500 was owed; if so, KES 450 is still due.
+
+**Kazi ya kufanya:** Sahihisha L-107 iwe KES 1,050. Tofauti ya KES 450 inagawanyika kwa 9, dalili ya tarakimu zilizobadilishana. Muulize Akinyi Odhiambo kama alikuwa anadaiwa KES 1,500; kama ndiyo, bado anadaiwa KES 450.
 
 **Belief change:** Ledger agent went from KES 1,500 to KES 1,050 because: Safaricom records the amount automatically. The book is written by hand.
 
@@ -60,6 +64,8 @@ Rule match: `(Case duplicate 111)`
 
 **What to do:** Delete L-111. It repeats code QK7D3FT9WS, which was already recorded.
 
+**Kazi ya kufanya:** Futa L-111. Inarudia namba ya muamala QK7D3FT9WS iliyokwisha andikwa.
+
 **Belief change:** Ledger agent went from KES 600 to KES 300 because: Every M-Pesa code is unique. The same code written twice is one payment recorded twice.
 
 **To overrule:** if you know better, fix the record and run Ukweli again.
@@ -77,6 +83,8 @@ Rule match: `(Case owner-topup QL6S3DR1XW)`
 
 **What to do:** Don't count QL6S3DR1XW as sales. Record the KES 2,000 as the owner's float top-up.
 
+**Kazi ya kufanya:** Usihesabu QL6S3DR1XW kama mauzo. Andika KES 2,000 kama pesa ya mwenye duka ya kuongeza float.
+
 **Belief change:** M-Pesa agent went from KES 2,000 to KES 0 because: Money from the owner's own phone is the owner's money, not a customer's payment.
 
 **To overrule:** if you know better, fix the record and run Ukweli again.
@@ -93,6 +101,8 @@ Rule match: `(Case unrecorded QKA5Y7GJ4T)`
 **Agreed:** KES 1,200 (confidence 90%)
 
 **What to do:** Add a book entry for QKA5Y7GJ4T, and close Brian Mwangi's debt D-03 (KES 1,200, from 2026-10-03).
+
+**Kazi ya kufanya:** Andika QKA5Y7GJ4T kwenye kitabu, na ufunge deni la Brian Mwangi D-03 (KES 1,200, la tarehe 2026-10-03).
 
 **Belief change:** Ledger agent went from KES 0 to KES 1,200 because: A missing book entry doesn't mean missing money. The statement shows it arrived.
 
@@ -112,3 +122,5 @@ Rule match: `(Case possible-match 115)`
 - **6.** M-Pesa agent has nothing to add.
 
 **No agreement.** Ask Mama Faith: did you pay KES 800 on 2026-10-16 from 0711***902 (GRACE MUTHONI)?
+
+**Hawakukubaliana.** Muulize Mama Faith: ulilipa KES 800 tarehe 2026-10-16 kutoka 0711***902 (GRACE MUTHONI)?

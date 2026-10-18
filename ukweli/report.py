@@ -49,20 +49,22 @@ COLOR = {"ledger": "\033[33m", "mpesa": "\033[32m"}
 BOLD, DIM, RESET = "\033[1m", "\033[2m", "\033[0m"
 
 
-def print_debate(d, n, color=True):
+def print_debate(d, n, color=True, lang="en"):
     c = (lambda code: code) if color else (lambda code: "")
-    print(f"\n{c(BOLD)}Case {n}: {kes(d.question)}{c(RESET)}")
+    sw = lang == "sw"
+    print(f"\n{c(BOLD)}Case {n}: {kes(d.question_sw if sw else d.question)}{c(RESET)}")
     print(f"{c(DIM)}  Ledger says {money(d.claims['ledger'])}, M-Pesa says {money(d.claims['mpesa'])}{c(RESET)}")
     for m in d.moves:
         for line in _move_lines(d, m):
             print(f"  {c(COLOR[m['agent']])}{m['turn']:>2}. {line}{c(RESET)}")
     if d.outcome == "settled":
         print(f"  {c(BOLD)}Agreed: {money(d.agreed)}  (confidence {d.confidence:.0%}){c(RESET)}")
-        print(f"  Owner action: {kes(d.action)}")
+        print(f"  {'Kazi kwa mwenye duka' if sw else 'Owner action'}: {kes(d.action_sw if sw else d.action)}")
         b = d.belief_change
         print(f"{c(DIM)}  Belief changed: {NAMES[b['agent']]} {money(b['old'])} -> {money(b['new'])}{c(RESET)}")
     else:
-        print(f"  {c(BOLD)}No agreement. Asking the owner:{c(RESET)} {kes(d.owner_question)}")
+        label = "Hawakukubaliana. Swali kwa mwenye duka:" if sw else "No agreement. Asking the owner:"
+        print(f"  {c(BOLD)}{label}{c(RESET)} {kes(d.owner_question_sw if sw else d.owner_question)}")
 
 
 def print_summary(debates, color=True):
@@ -103,13 +105,16 @@ def audit_markdown(debates, generated):
                 "",
                 f"**What to do:** {kes(d.action)}",
                 "",
+                f"**Kazi ya kufanya:** {kes(d.action_sw)}",
+                "",
                 f"**Belief change:** {NAMES[b['agent']]} went from {money(b['old'])} to "
                 f"{money(b['new'])} because: {b['why']}",
                 "",
                 "**To overrule:** if you know better, fix the record and run Ukweli again.",
             ]
         else:
-            out += [f"**No agreement.** {kes(d.owner_question)}"]
+            out += [f"**No agreement.** {kes(d.owner_question)}", "",
+                    f"**Hawakukubaliana.** {kes(d.owner_question_sw)}"]
     return "\n".join(out) + "\n"
 
 

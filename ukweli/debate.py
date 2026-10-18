@@ -48,6 +48,7 @@ class Debate:
     case: str
     kind: str
     question: str
+    question_sw: str
     claims: dict
     evidence: dict
     moves: list = field(default_factory=list)
@@ -56,7 +57,10 @@ class Debate:
     conceded_by: str | None = None
     confidence: float | None = None
     action: str = ""
+    action_sw: str = ""
     owner_question: str = ""
+    owner_question_sw: str = ""
+    ask: dict = field(default_factory=dict)
     belief_change: dict = field(default_factory=dict)
 
 
@@ -70,6 +74,7 @@ def find_cases(metta):
 
 def _setup(metta, case):
     question = query(metta, f"(question {case})")[0]
+    question_sw = query(metta, f"(question-sw {case})")[0]
     claims, evidence = {}, {}
     for agent in AGENTS:
         claims[agent] = query(metta, f"(claim {agent} {case})")[0][1]
@@ -78,7 +83,7 @@ def _setup(metta, case):
         evidence[agent] = [Evidence(agent, kind, says, order) for _, order, kind, says in args]
         metta.run(f"!(believe {agent} {case} (kes {claims[agent]}))")
     kind = case.strip("()").split()[1]
-    return Debate(case, kind, question, claims, evidence)
+    return Debate(case, kind, question, question_sw, claims, evidence)
 
 
 def _rebuttal(metta, attacker, target):
@@ -146,7 +151,7 @@ def run_debate(metta, case):
             d.agreed = d.claims[AGENTS[1 - AGENTS.index(agent)]]
             settled = [s for s in query(metta, f"(settle {case})") if _head(s) == "Settled"]
             if settled:
-                d.confidence, d.action = settled[0][1], settled[0][2]
+                _, d.confidence, d.action, d.action_sw = settled[0]
             return d
         passes = passes + 1 if act == "pass" else 0
         if passes == 2:
@@ -154,7 +159,12 @@ def run_debate(metta, case):
 
     d.outcome = "escalated"
     asked = [e for e in query(metta, f"(escalate {case})") if _head(e) == "Escalate"]
-    d.owner_question = asked[0][1] if asked else "The agents couldn't agree. Please check this one by hand."
+    if asked:
+        _, d.owner_question, d.owner_question_sw, customer, phone = asked[0]
+        d.ask = dict(customer=customer, phone=phone)
+    else:
+        d.owner_question = "The agents couldn't agree. Please check this one by hand."
+        d.owner_question_sw = "Mawakala hawakukubaliana. Tafadhali angalia hili mwenyewe."
     return d
 
 
